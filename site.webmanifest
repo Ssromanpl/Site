@@ -1,0 +1,22 @@
+{
+  "name": "Салон-парикмахерская «Пафия»",
+  "short_name": "Пафия",
+  "description": "Салон-парикмахерская на Притыцкого, 73 в Минске: стрижки, окрашивание, маникюр, депиляция.",
+  "lang": "ru",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fbf8f4",
+  "theme_color": "#fbf8f4",
+  "icons": [
+    {
+      "src": "/assets/img/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/assets/img/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600" role="img" aria-label="Вывеска «Пафия»">
+<defs>
+  <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#E7E3D8"/><stop offset="1" stop-color="#CFC7B4"/>
+  </linearGradient>
+  <clipPath id="c"><rect width="800" height="600"/></clipPath>
+</defs>
+<g clip-path="url(#c)">
+  <rect width="800" height="600" fill="url(#g)"/>
+  <circle cx="520" cy="192" r="270" fill="#8A6A46" opacity="0.14"/>
+  <g transform="rotate(-2 576 420)">
+    <rect x="440" y="300" width="336" height="252" rx="36" fill="#8A6A46" opacity="0.10"/>
+  </g>
+  <circle cx="400" cy="282" r="51" fill="none" stroke="#8A6A46" stroke-opacity="0.5" stroke-width="3.6"/>
+  <circle cx="400" cy="282" r="18" fill="#8A6A46" fill-opacity="0.45"/>
+  <text x="400" y="402" text-anchor="middle"
+        font-family="Manrope, Segoe UI, Helvetica, Arial, sans-serif" font-size="31"
+        font-weight="600" fill="#8A6A46" fill-opacity="0.92">Вывеска «Пафия»</text>
+</g>
+</svg>

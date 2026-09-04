@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 700" width="600" height="700" role="img" aria-label="Наращивание, френч">
+<defs>
+  <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#E7E3D8"/><stop offset="1" stop-color="#CFC7B4"/>
+  </linearGradient>
+  <clipPath id="c"><rect width="600" height="700"/></clipPath>
+</defs>
+<g clip-path="url(#c)">
+  <rect width="600" height="700" fill="url(#g)"/>
+  <circle cx="258" cy="280" r="240" fill="#8A6A46" opacity="0.14"/>
+  <g transform="rotate(13 432 490)">
+    <rect x="330" y="350" width="252" height="294" rx="36" fill="#8A6A46" opacity="0.10"/>
+  </g>
+  <circle cx="300" cy="329" r="51" fill="none" stroke="#8A6A46" stroke-opacity="0.5" stroke-width="3.6"/>
+  <circle cx="300" cy="329" r="18" fill="#8A6A46" fill-opacity="0.45"/>
+  <text x="300" y="452" text-anchor="middle"
+        font-family="Manrope, Segoe UI, Helvetica, Arial, sans-serif" font-size="31"
+        font-weight="600" fill="#8A6A46" fill-opacity="0.92">Наращивание, френч</text>
+</g>
+</svg>

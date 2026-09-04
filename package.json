@@ -1,0 +1,13 @@
+{
+  "name": "pafia-site",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Сайт салона-парикмахерской «Пафия», Минск, ул. Притыцкого, 73",
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "serve": "node build.mjs && python3 -m http.server 8080",
+    "check": "node build.mjs && node tools/check.mjs"
+  },
+  "engines": { "node": ">=18" }
+}

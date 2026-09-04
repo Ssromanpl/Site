@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 900" width="800" height="900" role="img" aria-label="Мелирование">
+<defs>
+  <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#E7E3D8"/><stop offset="1" stop-color="#CFC7B4"/>
+  </linearGradient>
+  <clipPath id="c"><rect width="800" height="900"/></clipPath>
+</defs>
+<g clip-path="url(#c)">
+  <rect width="800" height="900" fill="url(#g)"/>
+  <circle cx="520" cy="468" r="264" fill="#8A6A46" opacity="0.14"/>
+  <g transform="rotate(-22 576 630)">
+    <rect x="440" y="450" width="336" height="378" rx="48" fill="#8A6A46" opacity="0.10"/>
+  </g>
+  <circle cx="400" cy="423" r="68" fill="none" stroke="#8A6A46" stroke-opacity="0.5" stroke-width="4.8"/>
+  <circle cx="400" cy="423" r="24" fill="#8A6A46" fill-opacity="0.45"/>
+  <text x="400" y="586" text-anchor="middle"
+        font-family="Manrope, Segoe UI, Helvetica, Arial, sans-serif" font-size="42"
+        font-weight="600" fill="#8A6A46" fill-opacity="0.92">Мелирование</text>
+</g>
+</svg>
