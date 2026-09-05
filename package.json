@@ -7,6 +7,7 @@
   "scripts": {
     "build": "node build.mjs",
     "edit": "node tools/editor.mjs",
+    "phone": "node tools/serve-phone.mjs",
     "build:single": "node build.mjs && node build-single.mjs",
     "brief": "node tools/build-brief.mjs",
     "serve": "node build.mjs && python3 -m http.server 8080",

@@ -11,8 +11,9 @@
  * правкой удобно закоммитить текущее состояние.
  */
 import { createServer } from 'node:http';
-import { readFileSync, writeFileSync, renameSync, existsSync, statSync } from 'node:fs';
-import { dirname, join, resolve, relative, isAbsolute, extname, sep } from 'node:path';
+import { readFileSync, writeFileSync, renameSync } from 'node:fs';
+import { dirname, join, resolve } from 'node:path';
+import { MIME, serveFile } from './lib/static.mjs';
 import { fileURLToPath } from 'node:url';
 import { spawnSync, spawn } from 'node:child_process';
 
@@ -22,19 +23,6 @@ const PORT = Number(process.env.PORT) || 4321;
 /** Редактируемые наборы данных. Ничего, кроме них, писать нельзя. */
 const DATASETS = ['site', 'prices', 'masters', 'techniques', 'content'];
 
-const MIME = {
-  '.html': 'text/html; charset=utf-8',
-  '.css': 'text/css; charset=utf-8',
-  '.js': 'text/javascript; charset=utf-8',
-  '.json': 'application/json; charset=utf-8',
-  '.svg': 'image/svg+xml',
-  '.png': 'image/png',
-  '.jpg': 'image/jpeg',
-  '.webp': 'image/webp',
-  '.xml': 'application/xml; charset=utf-8',
-  '.txt': 'text/plain; charset=utf-8',
-  '.webmanifest': 'application/manifest+json',
-};
 
 const send = (res, code, body, type = 'application/json; charset=utf-8') => {
   res.writeHead(code, { 'Content-Type': type, 'Cache-Control': 'no-store' });
@@ -83,32 +71,10 @@ function runBuild() {
   return { ok: true, log };
 }
 
-/**
- * Путь обязан остаться внутри проекта.
- * Сравнивать строки со «/» нельзя: на Windows разделитель обратный,
- * и такая проверка отвергала вообще все запросы. relative() знает
- * разделитель своей системы.
- */
-function insideRoot(file) {
-  const rel = relative(ROOT, file);
-  if (rel === '' || isAbsolute(rel)) return false;
-  // Именно «..» как отдельный сегмент: файл с именем «..точка.html» законен.
-  return rel !== '..' && !rel.startsWith('..' + sep);
-}
 
 function servePreview(res, urlPath) {
-  const rel = decodeURIComponent(urlPath.replace(/^\/preview\/?/, '')) || 'index.html';
-  const file = resolve(ROOT, rel);
-  const deny = (why) => send(res, 403, `Нельзя: ${why}`, 'text/plain; charset=utf-8');
-  // Не выпускаем за пределы проекта и не отдаём исходники редактора.
-  if (!insideRoot(file)) return deny('путь ведёт за пределы проекта');
-  if (/^(src|tools|node_modules|\.git)[\\/]/.test(rel.replace(/\\/g, '/'))) return deny('служебная папка');
-  if (!existsSync(file) || statSync(file).isDirectory()) {
-    const fallback = join(ROOT, '404.html');
-    if (existsSync(fallback)) return send(res, 404, readFileSync(fallback), MIME['.html']);
-    return send(res, 404, 'Не найдено', 'text/plain; charset=utf-8');
-  }
-  send(res, 200, readFileSync(file), MIME[extname(file)] || 'application/octet-stream');
+  const { code, body, type } = serveFile(ROOT, urlPath, '/preview');
+  send(res, code, body, type);
 }
 
 const server = createServer(async (req, res) => {
