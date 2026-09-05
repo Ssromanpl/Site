@@ -208,7 +208,7 @@ ${router}
 `;
 
 mkdirSync(join(ROOT, 'dist'), { recursive: true });
-const file = 'dist/pafia-odnim-faylom.html';
+const file = 'dist/pafia-sayt.html';
 writeFileSync(join(ROOT, file), out);
 console.log(`${file} — ${routes.length} страниц, ${(Buffer.byteLength(out) / 1024 / 1024).toFixed(2)} МБ, картинок внутри: ${assetCache.size}`);
 if (duplicates.length) console.log('Развели повторяющиеся id: ' + duplicates.join(' · '));
