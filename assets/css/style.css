@@ -266,9 +266,9 @@ a:hover { color: var(--accent); }
 .scard__links a:hover { border-color: var(--accent); color: var(--accent-dark); background: var(--accent-soft); }
 
 /* Мастера */
-@media (min-width: 560px) { .grid--masters { grid-template-columns: repeat(2, 1fr); } }
-@media (min-width: 980px) { .grid--masters { grid-template-columns: repeat(3, 1fr); } }
-@media (min-width: 980px) { .grid--masters-wide { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 760px) { .grid--masters { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1160px) { .grid--masters { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 1160px) { .grid--masters-wide { grid-template-columns: repeat(3, 1fr); } }
 .grid--masters-one { grid-template-columns: minmax(0, 380px); }
 
 .mcard { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-lg); overflow: hidden; display: flex; flex-direction: column; }
@@ -282,7 +282,27 @@ a:hover { color: var(--accent); }
 .mcard__name a:hover { color: var(--accent-dark); }
 .mcard__exp { margin: 0; font-size: var(--step--1); color: var(--ink-3); }
 .mcard__text { margin: .4rem 0 0; font-size: var(--step--1); color: var(--ink-2); }
-.mcard__actions { margin-top: auto; padding-top: 1rem; display: flex; flex-wrap: wrap; align-items: center; gap: .6rem 1rem; }
+/* Кнопка записи и «Подробнее» всегда в одну строку: когда у одних карточек
+   они рядом, а у соседних съезжают на вторую строку, ряд выглядит рваным.
+   Ширину обеспечивают точки перестроения сетки выше; если имя окажется
+   непомерно длинным, подпись кнопки усечётся, но строка не сломается. */
+.mcard__actions { margin-top: auto; padding-top: 1rem; display: flex; flex-wrap: nowrap; align-items: center; gap: .75rem; }
+.mcard__actions .btn { min-width: 0; padding-inline: .9rem; overflow: hidden; text-overflow: ellipsis; }
+.mcard__actions .link--arrow { flex: none; font-size: var(--step--1); }
+
+/* На узких экранах отыгрываем место у полей карточки, чтобы пара «кнопка +
+   Подробнее» не шла впритык. */
+@media (max-width: 420px) {
+  .mcard__body { padding-inline: 1rem; }
+  .mcard__actions { gap: .6rem; }
+}
+/* Ниже 340px пара не помещается физически. Там разрешаем перенос: колонка
+   одна, все карточки выглядят одинаково, ряд не рябит — это лучше, чем
+   обрезать подпись кнопки многоточием. */
+@media (max-width: 339px) {
+  .mcard__actions { flex-wrap: wrap; }
+  .mcard__actions .btn { overflow: visible; text-overflow: clip; }
+}
 
 /* Техники */
 @media (min-width: 620px) { .grid--tech { grid-template-columns: repeat(2, 1fr); } }
