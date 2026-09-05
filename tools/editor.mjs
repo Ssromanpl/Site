@@ -14,7 +14,7 @@ import { createServer } from 'node:http';
 import { readFileSync, writeFileSync, renameSync, existsSync, statSync } from 'node:fs';
 import { dirname, join, resolve, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { spawnSync } from 'node:child_process';
+import { spawnSync, spawn } from 'node:child_process';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const PORT = Number(process.env.PORT) || 4321;
@@ -132,8 +132,40 @@ const server = createServer(async (req, res) => {
   }
 });
 
+/** Сами открываем браузер, чтобы не пришлось копировать адрес руками. */
+function openBrowser(url) {
+  if (process.env.PAFIA_NO_OPEN) return;
+  const cmd = process.platform === 'darwin' ? ['open', [url]]
+    : process.platform === 'win32' ? ['cmd', ['/c', 'start', '', url]]
+    : ['xdg-open', [url]];
+  try {
+    spawn(cmd[0], cmd[1], { stdio: 'ignore', detached: true }).on('error', () => {}).unref();
+  } catch {
+    /* Браузер не открылся — не беда, адрес напечатан выше. */
+  }
+}
+
 server.listen(PORT, '127.0.0.1', () => {
-  console.log(`Редактор «Пафии» — http://127.0.0.1:${PORT}`);
-  console.log('Правки пишутся в src/data/*.json, сайт пересобирается автоматически.');
-  console.log('Остановить — Ctrl+C.');
+  const url = `http://127.0.0.1:${PORT}`;
+  console.log('');
+  console.log('  Редактор сайта «Пафия» запущен.');
+  console.log('');
+  console.log(`  Откройте в браузере:  ${url}`);
+  console.log('  (обычно он открывается сам через пару секунд)');
+  console.log('');
+  console.log('  Правки сохраняются в файлы проекта, сайт пересобирается сам.');
+  console.log('  Чтобы закончить работу — закройте это окно или нажмите Ctrl+C.');
+  console.log('');
+  openBrowser(url);
+});
+
+server.on('error', (e) => {
+  if (e.code === 'EADDRINUSE') {
+    console.error(`\n  Порт ${PORT} уже занят — возможно, редактор уже запущен в другом окне.`);
+    console.error(`  Проверьте http://127.0.0.1:${PORT} или запустите на другом порте:`);
+    console.error(`  PORT=5000 npm run edit\n`);
+  } else {
+    console.error('\n  Не удалось запустить редактор:', e.message, '\n');
+  }
+  process.exit(1);
 });
