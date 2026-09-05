@@ -162,6 +162,11 @@ a:hover { color: var(--accent); }
 }
 .card--tight { padding: clamp(1.1rem, 2.5vw, 1.5rem); border-radius: var(--radius); }
 
+/* --- Плашка черновика (только при сборке с DEMO=1) ----------------------- */
+.demobar { background: var(--accent); color: #fff; font-size: var(--step--1); }
+.demobar__inner { padding-block: .55rem; line-height: 1.4; }
+.demobar strong { font-weight: 700; }
+
 /* --- Шапка -------------------------------------------------------------- */
 .topbar {
   position: sticky; top: 0; z-index: 60;

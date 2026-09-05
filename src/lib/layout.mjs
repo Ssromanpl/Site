@@ -312,6 +312,23 @@ function breadcrumbs(items) {
   };
 }
 
+/**
+ * Режим черновика: DEMO=1 npm run build.
+ * Добавляет заметную плашку и закрывает страницы от поисковиков — чтобы
+ * выложенный на показ макет с придуманными ценами не нашли по запросу
+ * «Пафия Притыцкого» и не приняли за настоящий сайт салона.
+ */
+const DEMO = process.env.DEMO === '1';
+
+const demoBar = DEMO
+  ? `<div class="demobar">
+  <div class="wrap demobar__inner">
+    <strong>Демо-версия сайта.</strong>
+    Цены, тексты и фотографии предварительные — их ещё предстоит заменить на настоящие.
+  </div>
+</div>`
+  : '';
+
 export function layout({
   title,
   description,
@@ -336,6 +353,7 @@ export function layout({
 <meta name="description" content="${esc(description)}">
 <link rel="canonical" href="${canonical}">
 <meta name="theme-color" content="#fbf8f4">
+${DEMO ? '<meta name="robots" content="noindex, nofollow">' : ''}
 <meta name="format-detection" content="telephone=no">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Салон-парикмахерская «Пафия»">
@@ -356,6 +374,7 @@ ${schemas.map((s) => `<script type="application/ld+json">${JSON.stringify(s)}</s
 </head>
 <body class="${bodyClass}">
 <a class="skip" href="#main">Перейти к содержанию</a>
+${demoBar}
 ${header(depth, active)}
 <main id="main">
 ${content}

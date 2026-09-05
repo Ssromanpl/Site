@@ -1,0 +1,59 @@
+# Публикация черновика сайта на GitHub Pages.
+#
+# Собирает сайт в режиме DEMO=1: с плашкой «демо-версия» и закрытым от
+# поисковиков robots.txt. Так выложенный на показ макет с придуманными
+# ценами нельзя найти поиском и принять за настоящий сайт салона.
+#
+# Пока публикация не включена в настройках репозитория, этот сценарий
+# ничего не делает — просто завершится с ошибкой на последнем шаге.
+name: Публикация черновика
+
+on:
+  push:
+    branches: [claude/pafiya-barbershop-site-2vlg9t]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Одновременно публикуем только одну версию, лишние прогоны отменяем.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Собрать сайт в режиме черновика
+        run: DEMO=1 node build.mjs
+
+      - name: Отобрать только файлы сайта
+        run: |
+          mkdir -p _site
+          cp -r index.html prices.html masters.html contacts.html booking.html \
+                privacy.html cookies.html 404.html \
+                masters services assets \
+                robots.txt sitemap.xml site.webmanifest .nojekyll _site/
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

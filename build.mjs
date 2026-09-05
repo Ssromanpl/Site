@@ -112,9 +112,14 @@ ${pages
 `
 );
 
+// В режиме черновика закрываем сайт от поисковиков целиком.
 write(
   'robots.txt',
-  `User-agent: *
+  process.env.DEMO === '1'
+    ? `User-agent: *
+Disallow: /
+`
+    : `User-agent: *
 Allow: /
 Disallow: /404.html
 
