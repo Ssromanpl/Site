@@ -36,8 +36,8 @@ ${crumbs([{ name: 'Главная', path: 'index.html' }, { name: 'Цены' }],
   <div class="wrap">
     <h1 class="pagehead__title">Цены</h1>
     <p class="pagehead__lead">
-      Весь прайс открыт: чтобы увидеть цену, не нужно оставлять телефон и заполнять форму.
-      Обновлён ${esc(priceUpdated)}.
+      Здесь все цены на наши услуги, обновлены ${esc(priceUpdated)}.
+      Чтобы их увидеть, не нужно оставлять телефон и заполнять форму.
     </p>
     <div class="pagehead__actions">
       ${bookButton('Записаться', { cls: 'btn btn--primary' })}
@@ -47,7 +47,7 @@ ${crumbs([{ name: 'Главная', path: 'index.html' }, { name: 'Цены' }],
 </section>
 
 <div class="wrap">
-  <nav class="anchors" aria-label="Разделы прайса">${anchors}</nav>
+  <nav class="anchors" aria-label="Разделы с ценами">${anchors}</nav>
 
   <div class="prices-notes">
     <p class="note note--warn">${icon('shield')}<span><strong>Окрашивание, мелирование и колорирование</strong> — цены без учёта стоимости материалов. Расход краски зависит от длины и густоты волос, поэтому сумму мастер называет после осмотра, до начала работы.</span></p>
@@ -89,7 +89,7 @@ ${ctaBand({ depth: 0, title: 'Записаться по этой цене' })}
   return layout({
     title: 'Цены на стрижки, окрашивание и маникюр — салон «Пафия», Минск',
     description:
-      'Полный прайс салона на Притыцкого, 73. Женская стрижка от 45 руб., мужская от 40 руб., аппаратный маникюр 30 руб., шугаринг от 10 руб. Без скрытых доплат.',
+      'Все цены салона на Притыцкого, 73. Женская стрижка от 45 руб., мужская от 40 руб., аппаратный маникюр 30 руб., шугаринг от 10 руб. Без скрытых доплат.',
     path: 'prices.html',
     depth: 0,
     active: 'prices.html',
@@ -103,7 +103,7 @@ ${ctaBand({ depth: 0, title: 'Записаться по этой цене' })}
       {
         '@context': 'https://schema.org',
         '@type': 'OfferCatalog',
-        name: 'Прайс-лист салона-парикмахерской «Пафия»',
+        name: 'Цены салона-парикмахерской «Пафия»',
         url: `${site.origin}/prices.html`,
         numberOfItems: offers.length,
         itemListElement: offers,

@@ -52,8 +52,8 @@ export function homePage() {
     ${sectionHead({
       eyebrow: 'Услуги',
       title: 'Что мы делаем',
-      text: 'Полный прайс открыт: цены видно без записи и без звонка.',
-      action: '<a class="btn btn--ghost" href="prices.html">Весь прайс</a>',
+      text: 'Цены открыты: их видно сразу, без записи и без звонка.',
+      action: '<a class="btn btn--ghost" href="prices.html">Все цены</a>',
     })}
     <div class="grid grid--services">
       ${serviceBlocks
@@ -97,8 +97,8 @@ export function homePage() {
     ${sectionHead({
       eyebrow: 'Цены',
       title: 'Десять позиций, которые спрашивают чаще всего',
-      text: `Остальные 100 — на странице «Цены». Прайс обновлён ${esc(priceUpdated)}.`,
-      action: '<a class="btn btn--ghost" href="prices.html">Полный прайс</a>',
+      text: `Остальные 100 — на отдельной странице. Цены обновлены ${esc(priceUpdated)}.`,
+      action: '<a class="btn btn--ghost" href="prices.html">Все цены</a>',
     })}
     <ul class="pricelist pricelist--top">
       ${priceRows(topPrices)}
@@ -272,7 +272,7 @@ ${ctaBand({ depth: 0 })}
   return layout({
     title: 'Парикмахерская «Пафия» — Притыцкого 73, метро Кунцевщина, Минск',
     description:
-      'Стрижки, окрашивание, маникюр и депиляция во Фрунзенском районе Минска. Работаем с 2011 года в 260 метрах от метро «Кунцевщина». Открытый прайс и запись онлайн.',
+      'Стрижки, окрашивание, маникюр и депиляция во Фрунзенском районе Минска. Работаем с 2011 года в 260 метрах от метро «Кунцевщина». Все цены на сайте, запись онлайн.',
     path: 'index.html',
     depth: 0,
     active: 'index.html',
