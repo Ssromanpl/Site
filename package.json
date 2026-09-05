@@ -6,9 +6,12 @@
   "type": "module",
   "scripts": {
     "build": "node build.mjs",
+    "edit": "node tools/editor.mjs",
     "build:single": "node build.mjs && node build-single.mjs",
     "serve": "node build.mjs && python3 -m http.server 8080",
     "check": "node build.mjs && node tools/check.mjs"
   },
-  "engines": { "node": ">=18" }
+  "engines": {
+    "node": ">=18"
+  }
 }
