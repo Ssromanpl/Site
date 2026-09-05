@@ -114,12 +114,9 @@
   function setError(form, name, message) {
     var box = $('[data-error-for="' + name + '"]', form);
     var input = form.elements[name];
-    if (box) {
-      box.textContent = message || '';
-      // Место под сообщение резервируем навсегда: иначе при снятии ошибки
-      // форма схлопывается и кнопка уезжает из-под пальца.
-      box.classList.add('is-reserved');
-    }
+    // Место под сообщение зарезервировано в стилях, поэтому смена текста
+    // не двигает то, что расположено ниже.
+    if (box) box.textContent = message || '';
     if (input && input.setAttribute) input.setAttribute('aria-invalid', message ? 'true' : 'false');
   }
 

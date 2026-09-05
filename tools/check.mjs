@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const walk = (d, out = []) => {
   for (const f of readdirSync(d)) {
-    if (f === '.git' || f === 'node_modules' || f === 'src' || f === 'tools') continue;
+    if (['.git', 'node_modules', 'src', 'tools', 'dist'].includes(f)) continue;
     const p = join(d, f);
     statSync(p).isDirectory() ? walk(p, out) : out.push(p);
   }
