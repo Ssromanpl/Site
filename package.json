@@ -10,6 +10,7 @@
     "phone": "node tools/serve-phone.mjs",
     "build:single": "node build.mjs && node build-single.mjs",
     "brief": "node tools/build-brief.mjs",
+    "card": "node tools/build-card.mjs",
     "serve": "node build.mjs && python3 -m http.server 8080",
     "check": "node build.mjs && node tools/check.mjs"
   },
