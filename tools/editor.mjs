@@ -12,7 +12,7 @@
  */
 import { createServer } from 'node:http';
 import { readFileSync, writeFileSync, renameSync, existsSync, statSync } from 'node:fs';
-import { dirname, join, resolve, extname } from 'node:path';
+import { dirname, join, resolve, relative, isAbsolute, extname, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync, spawn } from 'node:child_process';
 
@@ -70,15 +70,39 @@ function writeAtomic(file, text) {
 
 function runBuild() {
   const r = spawnSync(process.execPath, ['build.mjs'], { cwd: ROOT, encoding: 'utf8' });
-  return { ok: r.status === 0, log: `${r.stdout || ''}${r.stderr || ''}`.trim() };
+  let log = `${r.stdout || ''}${r.stderr || ''}`.trim();
+  if (r.status !== 0) return { ok: false, log };
+
+  // Заодно обновляем версию «одним файлом»: иначе она молча устаревает,
+  // и отправленная кому-то копия расходится с сайтом.
+  const single = spawnSync(process.execPath, ['build-single.mjs'], { cwd: ROOT, encoding: 'utf8' });
+  const singleLog = `${single.stdout || ''}${single.stderr || ''}`.trim();
+  log += singleLog ? `\n${singleLog}` : '';
+  if (single.status !== 0) log += '\nВерсия «одним файлом» не собралась — на сам сайт это не влияет.';
+
+  return { ok: true, log };
+}
+
+/**
+ * Путь обязан остаться внутри проекта.
+ * Сравнивать строки со «/» нельзя: на Windows разделитель обратный,
+ * и такая проверка отвергала вообще все запросы. relative() знает
+ * разделитель своей системы.
+ */
+function insideRoot(file) {
+  const rel = relative(ROOT, file);
+  if (rel === '' || isAbsolute(rel)) return false;
+  // Именно «..» как отдельный сегмент: файл с именем «..точка.html» законен.
+  return rel !== '..' && !rel.startsWith('..' + sep);
 }
 
 function servePreview(res, urlPath) {
   const rel = decodeURIComponent(urlPath.replace(/^\/preview\/?/, '')) || 'index.html';
   const file = resolve(ROOT, rel);
+  const deny = (why) => send(res, 403, `Нельзя: ${why}`, 'text/plain; charset=utf-8');
   // Не выпускаем за пределы проекта и не отдаём исходники редактора.
-  if (!file.startsWith(ROOT + '/') && file !== ROOT) return send(res, 403, 'Нельзя', 'text/plain; charset=utf-8');
-  if (/^(src|tools|node_modules|\.git)\//.test(rel)) return send(res, 403, 'Нельзя', 'text/plain; charset=utf-8');
+  if (!insideRoot(file)) return deny('путь ведёт за пределы проекта');
+  if (/^(src|tools|node_modules|\.git)[\\/]/.test(rel.replace(/\\/g, '/'))) return deny('служебная папка');
   if (!existsSync(file) || statSync(file).isDirectory()) {
     const fallback = join(ROOT, '404.html');
     if (existsSync(fallback)) return send(res, 404, readFileSync(fallback), MIME['.html']);
