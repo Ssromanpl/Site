@@ -1,0 +1,64 @@
+# Публикация черновика сайта nail.lounge на GitHub Pages.
+#
+# Запускается только вручную: Actions → «Публикация черновика nail.lounge»
+# → Run workflow. Автоматического запуска нет намеренно — в репозитории есть
+# второй проект со своей публикацией, и на аккаунте GitHub Pages один адрес:
+# автозапуск перетирал бы чужой выложенный черновик.
+#
+# Собирает сайт в режиме DEMO=1: с плашкой «черновик» и закрытым от
+# поисковиков robots.txt, чтобы макет с придуманными ценами нельзя было
+# найти поиском и принять за настоящий сайт студии.
+name: Публикация черновика nail.lounge
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: naillounge
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Собрать сайт в режиме черновика
+        run: DEMO=1 node build.mjs
+
+      - name: Проверить собранное
+        run: node tools/check.mjs
+
+      - name: Отобрать только файлы сайта
+        run: |
+          mkdir -p _site
+          cp -r index.html manicure.html pedicure.html brows.html prices.html \
+                masters.html works.html reviews.html contacts.html gift.html \
+                404.html masters legal assets \
+                robots.txt sitemap.xml site.webmanifest .nojekyll _site/
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: naillounge/_site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
