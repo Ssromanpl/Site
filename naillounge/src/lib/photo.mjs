@@ -20,11 +20,11 @@ const realFile = (name) => {
 };
 
 const PALETTES = [
-  ['#F6EDEA', '#E7D3D2', '#A2545F'],
-  ['#F4EEE9', '#E2D5CB', '#8A6A46'],
-  ['#F1EDF0', '#DCD1DC', '#8A6A8C'],
-  ['#EDF1EC', '#D5DFD3', '#6F7F6A'],
-  ['#F7EDE7', '#E9D3C6', '#9A6B5A'],
+  ['#F2ECF7', '#DFD3EC', '#7A6494'],
+  ['#F3EFF6', '#DED6E8', '#6C74A0'],
+  ['#F5EFF5', '#E4D7E4', '#8E6597'],
+  ['#EEF2EF', '#D9E2DB', '#5C6E61'],
+  ['#F4EEF3', '#E2D5E0', '#8A5F7A'],
 ];
 
 const hash = (s) => {

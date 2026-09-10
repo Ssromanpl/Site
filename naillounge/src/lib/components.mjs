@@ -44,7 +44,7 @@ export const serviceCard = (service, card, depth = 0) => `
 </a>`;
 
 export const masterCard = (master, depth = 0, { demo = false } = {}) => `
-<article class="master">
+<article class="master" style="--card-accent: ${esc(master.accent || 'var(--accent)')}">
   ${photo({
     name: `master-${master.slug}`,
     label: `Фото: ${master.name}`,

@@ -398,7 +398,7 @@ export function layout({
 <title>${esc(title)}</title>
 <meta name="description" content="${esc(description)}">
 <link rel="canonical" href="${canonical}">
-<meta name="theme-color" content="#fdfaf8">
+<meta name="theme-color" content="#fcfafd">
 ${DEMO ? '<meta name="robots" content="noindex, nofollow">' : '<meta name="robots" content="index, follow">'}
 <meta name="format-detection" content="telephone=no">
 <meta property="og:type" content="website">

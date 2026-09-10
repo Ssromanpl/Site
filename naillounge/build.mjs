@@ -65,26 +65,26 @@ const written = pages.map(([path, html]) => write(path, html));
 const photos = writePhotos(ROOT);
 
 /* --- Значки и превью для мессенджеров ------------------------------------ */
-const PAPER = [253, 250, 248];
-const ACCENT = [162, 84, 95];
-const INK = [36, 30, 32];
+const PAPER = [252, 250, 253];
+const ACCENT = [122, 100, 148];
+const INK = [36, 31, 42];
 
 write(
   'assets/img/favicon.svg',
   `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <rect width="64" height="64" rx="14" fill="#a2545f"/>
+  <rect width="64" height="64" rx="14" fill="#7a6494"/>
   <path d="M32 14c-5 0-8 3-8 7v20c0 5 3 8 8 8s8-3 8-8V21c0-4-3-7-8-7Z" fill="#fff" opacity=".92"/>
-  <circle cx="32" cy="32" r="4" fill="#a2545f"/>
+  <circle cx="32" cy="32" r="4" fill="#7a6494"/>
 </svg>`
 );
 
 write(
   'assets/img/logo.svg',
   `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 64" width="300" height="64">
-  <rect x="4" y="8" width="48" height="48" rx="14" fill="#a2545f"/>
+  <rect x="4" y="8" width="48" height="48" rx="14" fill="#7a6494"/>
   <path d="M28 18c-4 0-6.5 2.4-6.5 5.6v16.8c0 3.2 2.5 5.6 6.5 5.6s6.5-2.4 6.5-5.6V23.6c0-3.2-2.5-5.6-6.5-5.6Z" fill="#fff" opacity=".92"/>
-  <text x="68" y="40" font-family="Lora, Georgia, serif" font-size="26" font-weight="600" fill="#241e20">nail.lounge</text>
-  <text x="68" y="53" font-family="Manrope, Segoe UI, Arial, sans-serif" font-size="11" fill="#756a6c">маникюр · педикюр · брови · Минск</text>
+  <text x="68" y="40" font-family="Lora, Georgia, serif" font-size="26" font-weight="600" fill="#241f2a">nail.lounge</text>
+  <text x="68" y="53" font-family="Manrope, Segoe UI, Arial, sans-serif" font-size="11" fill="#6e6675">маникюр · педикюр · брови · Минск</text>
 </svg>`
 );
 
@@ -153,8 +153,8 @@ write(
       lang: 'ru',
       start_url: '/',
       display: 'standalone',
-      background_color: '#fdfaf8',
-      theme_color: '#fdfaf8',
+      background_color: '#fcfafd',
+      theme_color: '#fcfafd',
       icons: [
         { src: '/assets/img/favicon.svg', sizes: 'any', type: 'image/svg+xml' },
         { src: '/assets/img/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
