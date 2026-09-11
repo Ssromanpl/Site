@@ -72,16 +72,23 @@ export class Canvas {
     }
   }
 
-  /** Буква «П» — логотип салона. Три прямоугольника, ничего лишнего. */
-  letterP(cx, cy, size, color) {
-    const w = size * 0.62;
-    const h = size;
-    const bar = Math.max(2, Math.round(size * 0.16));
-    const x = Math.round(cx - w / 2);
-    const y = Math.round(cy - h / 2);
-    this.fill(x, y, Math.round(w), bar, color);
-    this.fill(x, y, bar, Math.round(h), color);
-    this.fill(x + Math.round(w) - bar, y, bar, Math.round(h), color);
+  /** Знак студии: ноготь-миндаль с блеском. Три фигуры, ничего лишнего. */
+  mark(cx, cy, size, color) {
+    const w = size * 0.52;
+    const h = size * 0.78;
+    const r = w / 2;
+    // Тело: прямоугольник со скруглённой верхушкой и низом.
+    for (let y = Math.round(cy - h / 2); y <= Math.round(cy + h / 2); y++) {
+      for (let x = Math.round(cx - r); x <= Math.round(cx + r); x++) {
+        const top = cy - h / 2 + r;
+        const bottom = cy + h / 2 - r * 0.55;
+        let inside;
+        if (y < top) inside = (x - cx) ** 2 + (y - top) ** 2 <= r * r;
+        else if (y > bottom) inside = (x - cx) ** 2 / (r * r) + (y - bottom) ** 2 / (r * 0.55) ** 2 <= 1;
+        else inside = Math.abs(x - cx) <= r;
+        if (inside) this.set(x, y, color);
+      }
+    }
   }
 
   toPNG() {

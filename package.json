@@ -1,18 +1,17 @@
 {
-  "name": "pafia-site",
+  "name": "naillounge-site",
   "version": "1.0.0",
   "private": true,
-  "description": "Сайт салона-парикмахерской «Пафия», Минск, ул. Притыцкого, 73",
+  "description": "Сайт студии маникюра, педикюра и бровей nail.lounge, Минск, пр-т Независимости, 11/2",
   "type": "module",
   "scripts": {
     "build": "node build.mjs",
+    "draft": "DEMO=1 node build.mjs",
+    "check": "node build.mjs && node tools/check.mjs",
     "edit": "node tools/editor.mjs",
     "phone": "node tools/serve-phone.mjs",
-    "build:single": "node build.mjs && node build-single.mjs",
-    "brief": "node tools/build-brief.mjs",
-    "card": "node tools/build-card.mjs",
-    "serve": "node build.mjs && python3 -m http.server 8080",
-    "check": "node build.mjs && node tools/check.mjs"
+    "photos": "PHOTOS=1 node build.mjs",
+    "serve": "node build.mjs && python3 -m http.server 8080"
   },
   "engines": {
     "node": ">=18"

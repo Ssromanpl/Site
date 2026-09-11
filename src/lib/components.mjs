@@ -1,134 +1,211 @@
+// Повторяющиеся блоки: карточки услуг и мастеров, список цен, галерея,
+// отзывы, вопросы-ответы. Собраны здесь, чтобы страница оставалась
+// перечнем блоков, а не простынёй разметки.
 import { esc, url } from './layout.mjs';
 import { icon } from './icons.mjs';
+import { photo } from './photo.mjs';
 import { site } from '../data/site.mjs';
 import { priceLabel } from '../data/prices.mjs';
-import { photo } from './placeholders.mjs';
+import { masterBySlug } from '../data/masters.mjs';
 
-export function sectionHead({ eyebrow, title, text = '', action = '', id = '' }) {
-  return `
-<div class="sechead"${id ? ` id="${id}"` : ''}>
-  <div class="sechead__main">
-    ${eyebrow ? `<p class="eyebrow">${esc(eyebrow)}</p>` : ''}
-    <h2 class="sechead__title">${title}</h2>
-    ${text ? `<p class="sechead__text">${text}</p>` : ''}
-  </div>
-  ${action ? `<div class="sechead__action">${action}</div>` : ''}
+export const sectionHead = ({ kicker, title, lead, center = false, id = '' }) => `
+<div class="section__head${center ? ' section__head--center' : ''}"${id ? ` id="${id}"` : ''}>
+  ${kicker ? `<span class="kicker">${esc(kicker)}</span>` : ''}
+  <h2>${esc(title)}</h2>
+  ${lead ? `<p class="section__lead">${esc(lead)}</p>` : ''}
 </div>`;
-}
 
-export const bookButton = (label = 'Записаться', { master = '', service = '', cls = 'btn btn--primary' } = {}) =>
-  `<button class="${cls}" type="button" data-book${master ? ` data-master="${esc(master)}"` : ''}${
-    service ? ` data-service="${esc(service)}"` : ''
-  }>${esc(label)}</button>`;
+/** Плашка скидки на первый визит — она же есть у студии в реальности. */
+export const firstVisitStrip = () => `
+<div class="strip">
+  <span class="strip__badge">${icon('sparkle')}${esc(site.firstVisit.badge)}</span>
+  <span class="strip__text">${esc(site.firstVisit.text)}</span>
+</div>`;
 
-export function priceRows(items) {
-  return items
-    .map(
-      (i) => `
-    <li class="pricerow">
-      <span class="pricerow__name">${esc(i.name)}${i.note ? `<span class="pricerow__note">${esc(i.note)}</span>` : ''}</span>
-      <span class="pricerow__dots" aria-hidden="true"></span>
-      <span class="pricerow__price${i.free ? ' pricerow__price--free' : ''}">${esc(priceLabel(i))}</span>
-      ${bookButton('Записаться', { service: i.name, cls: 'pricerow__btn' })}
-    </li>`
-    )
-    .join('');
-}
+export const serviceCard = (service, card, depth = 0) => `
+<a class="svc" href="${url(service.slug + '.html', depth)}">
+  ${photo({
+    name: `service-${service.id}`,
+    label: `Фото: ${service.title.toLowerCase()}`,
+    alt: `${service.title} в студии nail.lounge`,
+    w: 800,
+    h: 600,
+    depth,
+    sizes: '(min-width: 900px) 360px, 100vw',
+  })}
+  <span class="svc__body">
+    <span class="svc__title">${icon(service.icon)}${esc(service.title)}</span>
+    <span class="svc__text">${esc(card.text)}</span>
+    <span class="svc__foot">
+      <span class="svc__price">${esc(card.priceHint)}</span>
+      <span class="link">Подробнее ${icon('arrow')}</span>
+    </span>
+  </span>
+</a>`;
 
-export function masterCard(m, depth = 0, { level = 3 } = {}) {
-  const href = url(`masters/${m.slug}.html`, depth);
-  const H = `h${level}`;
-  return `
-<article class="mcard">
-  <a class="mcard__media" href="${href}" tabindex="-1" aria-hidden="true">
-    ${photo({
-      name: `master-${m.slug}`,
-      label: m.name,
-      alt: `${m.name} — ${m.role.toLowerCase()} салона «Пафия»`,
-      w: 640,
-      h: 800,
-      depth,
-      className: 'mcard__img',
-    })}
-  </a>
-  <div class="mcard__body">
-    <p class="mcard__role">${esc(m.role)}</p>
-    <${H} class="mcard__name"><a href="${href}">${esc(m.name)}</a></${H}>
-    <p class="mcard__exp">${esc(m.experience)} · в «Пафии» с ${m.since}</p>
-    <p class="mcard__text">${esc(m.card)}</p>
-    <div class="mcard__actions">
-      ${bookButton(`Записаться к ${m.dative}`, { master: m.name, cls: 'btn btn--primary btn--sm' })}
-      <a class="link link--arrow" href="${href}">Подробнее ${icon('arrow')}</a>
+export const masterCard = (master, depth = 0, { demo = false } = {}) => `
+<article class="master" style="--card-accent: ${esc(master.accent || 'var(--accent)')}">
+  ${photo({
+    name: `master-${master.slug}`,
+    label: `Фото: ${master.name}`,
+    alt: `${master.name} — ${master.role.toLowerCase()}`,
+    w: 600,
+    h: 800,
+    depth,
+    sizes: '(min-width: 900px) 300px, 50vw',
+  })}
+  <div class="master__body">
+    <h3 class="master__name">${esc(master.name)}</h3>
+    <p class="master__role">${esc(master.role)}</p>
+    <p class="master__text">${esc(master.card)}</p>
+    ${demo && master.demo ? '<p class="note">Черновик: текст написан нами, мастер его ещё не подтвердил.</p>' : ''}
+    <div class="master__actions">
+      <button class="btn btn--primary btn--sm" type="button" data-book data-master="${esc(master.name)}">Записаться</button>
+      <a class="btn btn--ghost btn--sm" href="${url('masters/' + master.slug + '.html', depth)}">Подробнее</a>
     </div>
   </div>
 </article>`;
-}
 
-export function ratingCard(depth = 0) {
-  return `
-<div class="rating">
-  <div class="rating__score">
-    <span class="rating__value">${esc(site.rating.value)}</span>
-    <span class="rating__stars" aria-hidden="true">${icon('star').repeat(5)}</span>
-    <span class="rating__count">${site.rating.count} отзывов на ${esc(site.rating.source)}</span>
-  </div>
-  <p class="rating__text">
-    Это самый высокий рейтинг среди салонов на Притыцкого. Мы не переписываем чужие отзывы к себе на сайт —
-    читайте их там, где они оставлены.
-  </p>
-  <a class="btn btn--ghost" href="${site.rating.url}" target="_blank" rel="noopener nofollow">Читать отзывы на Google</a>
+/** Одна позиция цены: название, длительность, стоимость. */
+export const priceRow = (item) => `
+<li>
+  <span class="price__name">${esc(item.name)}${item.note ? `<span class="price__note">${esc(item.note)}</span>` : ''}</span>
+  ${item.duration ? `<span class="price__dur">${icon('clock')}${esc(item.duration)}</span>` : ''}
+  <span class="price__value${item.free ? ' price__value--free' : ''}">${esc(priceLabel(item))}</span>
+</li>`;
+
+export const priceGroup = (group) => `
+<div class="pricegroup">
+  <h3 class="pricegroup__title">${esc(group.title)}</h3>
+  ${group.note ? `<p class="pricegroup__note">${esc(group.note)}</p>` : ''}
+  <ul class="pricelist">
+    ${group.items.map(priceRow).join('\n    ')}
+  </ul>
 </div>`;
-}
 
-export function ctaBand({ depth = 0, title = 'Записаться в «Пафию»', text = '' } = {}) {
-  return `
-<section class="cta">
-  <div class="wrap cta__inner">
-    <div class="cta__text">
-      <h2 class="cta__title">${esc(title)}</h2>
-      <p>${text || 'Выберите услугу, мастера и удобное время. Мы подтвердим запись в течение рабочего дня. Или позвоните — иногда получается вписать на сегодня.'}</p>
-    </div>
-    <div class="cta__actions">
-      ${bookButton('Записаться онлайн', { cls: 'btn btn--primary btn--lg' })}
-      <a class="btn btn--ghost btn--lg" href="${site.phonePrimary.href}" data-goal="phone">${icon('phone')} ${site.phonePrimary.label}</a>
-      <a class="btn btn--link" href="${site.viber}" data-goal="viber">Написать в Viber</a>
-    </div>
-  </div>
+export const priceCategory = (category) => `
+<section class="pricecat" id="${esc(category.id)}">
+  <h2>${esc(category.title)}</h2>
+  ${category.lead ? `<p class="pricecat__lead">${esc(category.lead)}</p>` : ''}
+  ${category.groups.map(priceGroup).join('\n  ')}
 </section>`;
-}
 
-export function crumbs(items, depth = 0) {
-  const last = items.length - 1;
+export const workItem = (work, i, depth = 0) => {
+  const master = masterBySlug(work.master);
+  const name = `work-${work.direction}-${i + 1}`;
   return `
-<nav class="crumbs" aria-label="Хлебные крошки">
-  <div class="wrap">
-    <ol>
-      ${items
-        .map((c, i) =>
-          i === last
-            ? `<li><span aria-current="page">${esc(c.name)}</span></li>`
-            : `<li><a href="${url(c.path, depth)}">${esc(c.name)}</a></li>`
-        )
-        .join('')}
-    </ol>
+<figure class="work" data-work data-direction="${esc(work.direction)}" data-master="${esc(work.master)}">
+  ${photo({
+    name,
+    label: `Фото: ${work.title.toLowerCase()}`,
+    alt: `${work.title}${master ? ', мастер ' + master.name : ''}`,
+    w: 600,
+    h: 600,
+    depth,
+    sizes: '(min-width: 1000px) 260px, 45vw',
+  })}
+  <figcaption>${esc(work.title)}${master ? ` · <span class="work__master">${esc(master.name)}</span>` : ''}</figcaption>
+</figure>`;
+};
+
+/** «До и после» — ползунок сдвигает верхнюю картинку. */
+export const beforeAfter = (work, i, depth = 0) => `
+<figure class="ba" data-ba>
+  <div class="ba__frame">
+    <span class="ba__mark ba__mark--before">До</span>
+    ${photo({
+      name: `ba-${work.direction}-${i + 1}-before`,
+      label: 'Фото: до визита',
+      alt: esc(work.before),
+      w: 800,
+      h: 600,
+      depth,
+    })}
+    <div class="ba__after">
+      <span class="ba__mark ba__mark--after">После</span>
+      ${photo({
+        name: `ba-${work.direction}-${i + 1}-after`,
+        label: 'Фото: после визита',
+        alt: esc(work.after),
+        w: 800,
+        h: 600,
+        depth,
+      })}
+    </div>
+    <input class="ba__range" type="range" min="0" max="100" value="50" aria-label="Сдвиньте, чтобы сравнить до и после">
   </div>
-</nav>`;
-}
+  <figcaption>${esc(work.title)}</figcaption>
+</figure>`;
 
-export function faqList(items, { open = 0 } = {}) {
-  return `
+export const stars = (n = 5) => `<span class="stars" aria-hidden="true">${icon('star').repeat(n)}</span>`;
+
+export const reviewCard = (review, { demo = false } = {}) => `
+<article class="card review">
+  ${stars(review.rating)}<span class="visually-hidden">Оценка ${review.rating} из 5</span>
+  <p class="review__text">${esc(review.text)}</p>
+  <p class="review__foot">
+    <span class="review__author">${esc(review.author)}</span>
+    <span>${esc(review.source)}</span>
+    <span>${esc(review.date)}</span>
+    ${demo && review.demo ? '<span class="tag tag--demo">черновик</span>' : ''}
+  </p>
+</article>`;
+
+export const ratingBlock = () => `
+<div class="rating">
+  <span class="rating__value">${esc(site.rating.value)}<span>из 5</span></span>
+  ${stars(5)}
+  <span class="rating__sources">
+    ${site.rating.sources
+      .map((s) => `<span>${esc(s.name)}: ${esc(s.value)} — ${s.count} отзывов</span>`)
+      .join('\n    ')}
+  </span>
+</div>`;
+
+export const faqBlock = (items) => `
 <div class="faq">
   ${items
     .map(
-      (f, i) => `
-  <details class="faq__item"${i === open ? ' open' : ''}>
-    <summary class="faq__q">${esc(f.q)}<span class="faq__mark" aria-hidden="true"></span></summary>
-    <div class="faq__a"><p>${esc(f.a)}</p></div>
+      (f) => `<details>
+    <summary>${esc(f.q)}</summary>
+    <div class="faq__body">${esc(f.a)}</div>
   </details>`
     )
-    .join('')}
+    .join('\n  ')}
 </div>`;
-}
 
-export const noteBox = (text, { kind = 'info' } = {}) =>
-  `<p class="note note--${kind}">${icon(kind === 'warn' ? 'shield' : 'check')}<span>${text}</span></p>`;
+export const faqSchema = (items) => ({
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: items.map((f) => ({
+    '@type': 'Question',
+    name: f.q,
+    acceptedAnswer: { '@type': 'Answer', text: f.a },
+  })),
+});
+
+export const stepsList = (steps, cols = false) => `
+<ol class="steps${cols ? ' steps--cols' : ''}">
+  ${steps
+    .map(
+      (s) => `<li>
+    <h3>${esc(s.title)}</h3>
+    <p>${esc(s.text)}</p>
+  </li>`
+    )
+    .join('\n  ')}
+</ol>`;
+
+/** Полоса записи в конце страницы — последний шанс нажать кнопку. */
+export const bookingBand = (depth = 0, { title, text, service = '', master = '' } = {}) => `
+<section class="section section--soft">
+  <div class="wrap">
+    <div class="card">
+      ${sectionHead({ title: title || 'Записаться', lead: text || `Администратор подберёт время: ${site.hoursShort}. Первый визит — со скидкой ${site.firstVisit.badge.replace('на первый визит', '').trim()}.`, center: true })}
+      <div class="cta-row">
+        <button class="btn btn--primary btn--lg" type="button" data-book${service ? ` data-service="${esc(service)}"` : ''}${master ? ` data-master="${esc(master)}"` : ''}>Записаться</button>
+        <a class="btn btn--ghost btn--lg" href="${site.phonePrimary.href}" data-goal="phone">${icon('phone')}${esc(site.phonePrimary.label)}</a>
+      </div>
+    </div>
+  </div>
+</section>`;

@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Редактор сайта «Пафия»</title>
+<title>Редактор сайта nail.lounge</title>
 <style>
 :root{
-  --paper:#fbf8f4; --soft:#f4ede4; --card:#fff;
-  --ink:#23201d; --ink2:#55504a; --ink3:#6e675e;
-  --line:#e7ded3; --line2:#d8ccbd;
-  --accent:#a65b3e; --accent-dark:#8a4931; --accent-soft:#f4e7df;
-  --ok:#5f7a6b; --bad:#b4462f;
+  --paper:#fcfafd; --soft:#f3eff7; --card:#fff;
+  --ink:#241f2a; --ink2:#504857; --ink3:#6e6675;
+  --line:#e9e2f0; --line2:#c9bcda;
+  --accent:#7a6494; --accent-dark:#5f4c77; --accent-soft:#f1ecf6;
+  --ok:#5c6e61; --bad:#b03a2e;
   --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
 }
 *,*::before,*::after{box-sizing:border-box}
@@ -74,7 +74,7 @@ legend{padding:0 7px;font-weight:700;font-size:12px;text-transform:uppercase;let
 .item__tools{display:flex;gap:3px;flex:none}
 .icon-btn{width:26px;height:26px;display:grid;place-items:center;border:1px solid var(--line);border-radius:7px;background:var(--card);color:var(--ink3);font-size:13px;line-height:1}
 .icon-btn:hover{border-color:var(--accent);color:var(--accent-dark);background:var(--accent-soft)}
-.icon-btn.del:hover{border-color:var(--bad);color:var(--bad);background:#fdf1ee}
+.icon-btn.del:hover{border-color:var(--bad);color:var(--bad);background:#fbf0f0}
 .item__body{padding:12px 12px 4px;border-top:1px solid var(--line)}
 .strings .item__body{padding:0}
 .srow{display:flex;gap:6px;align-items:start;margin-bottom:6px}
@@ -93,9 +93,9 @@ legend{padding:0 7px;font-weight:700;font-size:12px;text-transform:uppercase;let
 <body>
 <div class="app">
   <header class="top">
-    <div class="brand"><span>П</span>Редактор сайта</div>
+    <div class="brand"><span>n</span>Редактор сайта nail.lounge</div>
     <button class="btn btn--sm" id="open-preview" type="button">Открыть сайт</button>
-    <p class="top__hint">Правки пишутся в <code>src/data/*.json</code>. Откат — через git.</p>
+    <p class="top__hint">Правки пишутся в <code>src/data/*.json</code>, сайт пересобирается сам.</p>
   </header>
 
   <nav class="side" id="side"></nav>
@@ -119,93 +119,112 @@ legend{padding:0 7px;font-weight:700;font-size:12px;text-transform:uppercase;let
 var S = {};
 
 S.site = [
-  { k:'site', type:'group', label:'Салон', of:[
-    { k:'name', label:'Полное название' },
-    { k:'shortName', label:'Короткое название' },
-    { k:'origin', label:'Адрес сайта', hint:'— влияет на canonical, og:url, sitemap и микроразметку' },
-    { k:'founded', label:'Год открытия', type:'num' },
+  { k:'site', type:'group', label:'Студия', of:[
+    { k:'name', label:'Название', hint:'— как в шапке и в микроразметке' },
+    { k:'fullName', label:'Полное название', hint:'— для карточки в поиске' },
+    { k:'instagramNick', label:'Ник в Instagram' },
+    { k:'tagline', label:'Одной строкой' },
+    { k:'lead', label:'Короткое описание', type:'area' },
+    { k:'origin', label:'Адрес сайта', hint:'— влияет на canonical, og:url, карту сайта и микроразметку' },
   ]},
   { k:'site.address', type:'group', label:'Адрес', of:[
-    { k:'street', label:'Улица, дом, офис' },
-    { k:'streetShort', label:'Коротко' },
-    { k:'office', label:'Офис' },
+    { k:'street', label:'Улица и дом' },
+    { k:'streetShort', label:'Коротко', hint:'— показывается в шапке' },
     { k:'city', label:'Город' },
     { k:'postalCode', label:'Индекс' },
-    { k:'district', label:'Район' },
-    { k:'country', label:'Код страны' },
+    { k:'country', label:'Код страны', hint:'— BY' },
   ]},
-  { k:'site.metro', type:'group', label:'Метро', of:[
+  { k:'site.metro', type:'group', label:'Метро и ориентиры', of:[
     { k:'name', label:'Станция' },
-    { k:'distance', label:'Сколько идти' },
+    { k:'distance', label:'Расстояние', hint:'— «290 метров»' },
+    { k:'walk', label:'Сколько идти', hint:'— «4 минуты пешком»' },
   ]},
-  { k:'site.geo', type:'group', label:'Координаты для карты', of:[
-    { k:'lat', label:'Широта', type:'num', step:'0.000001' },
-    { k:'lon', label:'Долгота', type:'num', step:'0.000001' },
+  { k:'site', type:'group', label:'Ориентиры и график', of:[
+    { k:'landmarks', label:'Ориентиры рядом', type:'strings', add:'Добавить ориентир' },
+    { k:'hours', label:'График работы', type:'list', titleKey:'days', add:'Добавить строку',
+      of:[ { k:'days', label:'Дни' }, { k:'time', label:'Часы' } ] },
+    { k:'hoursShort', label:'График одной строкой', hint:'— идёт в подвал и в микроразметку' },
+    { k:'phonePrimary', label:'Телефон', type:'phone', withRaw:true, hint:'— достаточно ввести номер, ссылка соберётся сама' },
   ]},
-  { k:'site', type:'group', label:'Связь', of:[
-    { k:'phonePrimary', label:'Основной телефон', type:'phone', hint:'— ссылка tel: подставится сама' },
-    { k:'phonesSecondary', label:'Остальные телефоны', type:'list', item:'phone', titleKey:'label', add:'Добавить телефон',
-      of:[ { k:'label', label:'Номер', type:'phone-label' } ] },
-    { k:'viber', label:'Ссылка на Viber' },
-    { k:'telegram', label:'Ссылка на Telegram' },
-    { k:'email', label:'Почта', type:'email' },
+  { k:'site', type:'group', label:'Мессенджеры', of:[
+    { k:'channels', label:'Каналы записи', type:'list', titleKey:'title', add:'Добавить канал', of:[
+      { k:'id', label:'Значок', type:'select', options:['telegram','viber','whatsapp','instagram','chat'] },
+      { k:'title', label:'Название' },
+      { k:'note', label:'Пояснение', hint:'— мелкой строкой под названием' },
+      { k:'href', label:'Ссылка' },
+      { k:'demo', label:'Заготовка — ссылку надо проверить', type:'check' },
+    ]},
   ]},
   { k:'site.instagram', type:'group', label:'Instagram', of:[
     { k:'label', label:'Ник' },
     { k:'url', label:'Ссылка' },
   ]},
-  { k:'site', type:'group', label:'График работы', of:[
-    { k:'hours', label:'Строки графика', type:'list', titleKey:'days', add:'Добавить строку',
-      of:[ { k:'days', label:'Дни' }, { k:'time', label:'Часы' } ] },
-    { k:'hoursShort', label:'Одной строкой', hint:'— идёт в подвал и в реквизиты' },
-  ]},
   { k:'site.rating', type:'group', label:'Рейтинг', of:[
-    { k:'value', label:'Оценка' },
-    { k:'count', label:'Сколько отзывов', type:'num' },
-    { k:'source', label:'Площадка' },
-    { k:'url', label:'Ссылка на отзывы' },
+    { k:'value', label:'Средняя оценка' },
+    { k:'count', label:'Всего отзывов', type:'num' },
+    { k:'sources', label:'Площадки', type:'list', titleKey:'name', add:'Добавить площадку',
+      of:[ { k:'name', label:'Площадка' }, { k:'value', label:'Оценка' }, { k:'count', label:'Отзывов', type:'num' } ] },
+  ]},
+  { k:'site.firstVisit', type:'group', label:'Скидка на первый визит', of:[
+    { k:'badge', label:'Надпись на плашке' },
+    { k:'text', label:'Пояснение', type:'area' },
+  ]},
+  { k:'site.booking', type:'group', label:'Приём заявок', of:[
+    { k:'endpoint', label:'Адрес обработчика', hint:'— пусто: заявка уходит готовым сообщением в мессенджер' },
+    { k:'systemName', label:'Система записи', hint:'— YCLIENTS, DIKIDI, если появится' },
+    { k:'systemUrl', label:'Ссылка на систему записи' },
+  ]},
+  { k:'site.analytics', type:'group', label:'Аналитика', of:[
+    { k:'metrikaId', label:'Номер счётчика Яндекс.Метрики' },
+    { k:'gaId', label:'Идентификатор Google Analytics' },
+  ]},
+  { k:'site.geo', type:'group', label:'Координаты для карт', of:[
+    { k:'lat', label:'Широта' },
+    { k:'lon', label:'Долгота' },
+    { k:'demo', label:'Координаты приблизительные', type:'check' },
   ]},
   { k:'site.legal', type:'group', label:'Реквизиты для подвала', of:[
-    { k:'entity', label:'Юридическое лицо' },
+    { k:'entity', label:'Юридическое лицо или ИП' },
     { k:'unp', label:'УНП' },
     { k:'registrar', label:'Кто зарегистрировал' },
     { k:'registeredAt', label:'Дата регистрации' },
     { k:'legalAddress', label:'Юридический адрес' },
-    { k:'gir', label:'Свидетельство ГИР' },
-    { k:'tradeRegister', label:'Торговый реестр' },
-    { k:'okved', label:'ОКЭД' },
-  ]},
-  { k:'site', type:'group', label:'Прочее', of:[
-    { k:'cosmetics', label:'Косметика, на которой работаете', type:'strings', add:'Добавить марку' },
+    { k:'updated', label:'Дата редакции документов' },
+    { k:'demo', label:'Реквизиты ещё не получены', type:'check' },
   ]},
   { k:'', type:'group', label:'Меню в шапке', of:[
-    { k:'nav', label:'Пункты', type:'list', titleKey:'title', add:'Добавить пункт',
-      of:[ { k:'title', label:'Название' }, { k:'href', label:'Ссылка', hint:'— например prices.html или index.html#services' } ] },
+    { k:'nav', label:'Пункты меню', type:'list', titleKey:'title', add:'Добавить пункт',
+      of:[ { k:'title', label:'Название' }, { k:'href', label:'Ссылка', hint:'— например prices.html' } ] },
   ]},
 ];
 
 var PRICE_ITEM = [
   { k:'name', label:'Услуга' },
   { k:'price', label:'Цена, руб.', type:'num' },
+  { k:'duration', label:'Длительность', hint:'— «1 ч 30 мин»' },
   { k:'from', label:'Показывать «от»', type:'check' },
   { k:'free', label:'Бесплатно', type:'check' },
-  { k:'unit', label:'Единица', hint:'— например «за ноготь»' },
+  { k:'unit', label:'Единица', hint:'— «за ноготь»' },
   { k:'note', label:'Примечание под названием' },
 ];
 
 S.prices = [
   { k:'', type:'group', label:'Общее', of:[
-    { k:'priceUpdated', label:'Дата обновления цен', hint:'— показывается на странице цен' },
+    { k:'priceUpdated', label:'Дата обновления цен', hint:'— показывается на странице «Цены»' },
+    { k:'priceNote', label:'Пояснение под заголовком', type:'area' },
   ]},
-  { k:'', type:'group', label:'Топ-10 на главной', of:[
-    { k:'topPrices', label:'Позиции', type:'list', titleKey:'name', add:'Добавить позицию',
-      of:[ { k:'name', label:'Услуга' }, { k:'price', label:'Цена, руб.', type:'num' },
-           { k:'from', label:'Показывать «от»', type:'check' }, { k:'note', label:'Примечание' } ] },
+  { k:'', type:'group', label:'Что входит в цену', of:[
+    { k:'included', type:'sub', label:'Блок «что уже входит»', of:[
+      { k:'title', label:'Заголовок' },
+      { k:'items', label:'Пункты', type:'strings', add:'Добавить пункт' },
+    ]},
+    { k:'extraTitle', label:'Заголовок «что считается отдельно»' },
+    { k:'extraLead', label:'Пояснение', type:'area' },
   ]},
   { k:'', type:'group', label:'Все цены', of:[
     { k:'priceCategories', label:'Разделы', type:'list', titleKey:'title', add:'Добавить раздел', of:[
       { k:'title', label:'Название раздела' },
-      { k:'id', label:'Якорь', hint:'— латиницей, попадает в адрес: prices.html#hair' },
+      { k:'id', label:'Якорь', hint:'— латиницей, попадает в адрес: prices.html#manicure' },
       { k:'lead', label:'Вступление', type:'area' },
       { k:'groups', label:'Группы услуг', type:'list', titleKey:'title', add:'Добавить группу', of:[
         { k:'title', label:'Название группы' },
@@ -214,107 +233,211 @@ S.prices = [
       ]},
     ]},
   ]},
+  { k:'', type:'group', label:'Из чего складывается сумма', of:[
+    { k:'sumParts', type:'sub', label:'Блок на странице «Цены»', of:[
+      { k:'title', label:'Заголовок' },
+      { k:'lead', label:'Вступление', type:'area' },
+      { k:'items', label:'Составляющие', type:'list', titleKey:'title', add:'Добавить составляющую',
+        of:[ { k:'title', label:'Заголовок' }, { k:'text', label:'Текст', type:'area' } ] },
+      { k:'note', label:'Приписка снизу', type:'area' },
+    ]},
+  ]},
+  { k:'', type:'group', label:'Цены на главной', of:[
+    { k:'topPrices', label:'Позиции', type:'list', titleKey:'name', add:'Добавить позицию',
+      of:[ { k:'name', label:'Услуга' }, { k:'price', label:'Цена, руб.', type:'num' },
+           { k:'from', label:'Показывать «от»', type:'check' }, { k:'duration', label:'Длительность' },
+           { k:'href', label:'Ссылка на страницу услуги' } ] },
+  ]},
 ];
 
 S.masters = [
+  { k:'', type:'group', label:'История студии', of:[
+    { k:'founders', type:'sub', label:'Блок про сестёр на странице «Мастера»', of:[
+      { k:'title', label:'Заголовок' },
+      { k:'paragraphs', label:'Абзацы', type:'strings', area:true, add:'Добавить абзац' },
+      { k:'demo', label:'Черновик — подтвердить у владельцев', type:'check' },
+    ]},
+    { k:'admin', type:'sub', label:'Администратор', of:[
+      { k:'name', label:'Имя' },
+      { k:'role', label:'Должность' },
+      { k:'text', label:'Текст карточки', type:'area' },
+    ]},
+  ]},
   { k:'', type:'group', label:'Мастера', of:[
     { k:'masters', label:'Карточки', type:'list', titleKey:'name', add:'Добавить мастера', of:[
-      { k:'name', label:'Имя как в карточке' },
-      { k:'short', label:'Коротко', hint:'— «Лариса»' },
-      { k:'dative', label:'Кому', hint:'— «Записаться к Ларисе»' },
-      { k:'genitive', label:'Кого', hint:'— «Работы Ларисы»' },
-      { k:'slug', label:'Адрес страницы', hint:'— латиницей: masters/larisa.html' },
+      { k:'name', label:'Имя' },
+      { k:'slug', label:'Адрес страницы', hint:'— латиницей: masters/karina.html' },
+      { k:'dative', label:'Кому', hint:'— «Записаться к Карине»' },
+      { k:'genitive', label:'Кого', hint:'— «Работы Карины»' },
       { k:'role', label:'Должность' },
-      { k:'since', label:'В салоне с года', type:'num' },
+      { k:'directions', label:'Направления', type:'strings', add:'Добавить направление',
+        hint:'— manicure, pedicure или brows' },
+      { k:'since', label:'В студии с года', type:'num' },
       { k:'experience', label:'Стаж строкой' },
       { k:'accent', label:'Цвет карточки', type:'color' },
       { k:'card', label:'Текст в карточке', type:'area' },
       { k:'lead', label:'Вступление на странице', type:'area' },
       { k:'approach', label:'«Как работает» — абзацы', type:'strings', area:true, add:'Добавить абзац' },
       { k:'specialties', label:'Что делает', type:'strings', add:'Добавить пункт' },
-      { k:'portfolio', label:'Подписи к портфолио', type:'strings', add:'Добавить подпись',
+      { k:'education', label:'Обучение', type:'strings', add:'Добавить пункт' },
+      { k:'portfolio', label:'Подписи к работам', type:'strings', add:'Добавить подпись',
         hint:'— по числу подписей создаются места под фотографии' },
-      { k:'services', label:'Услуги мастера', type:'strings', add:'Добавить услугу' },
+      { k:'demo', label:'Черновик — мастер текст не подтверждал', type:'check' },
     ]},
   ]},
 ];
 
-S.techniques = [
-  { k:'', type:'group', label:'Техники окрашивания', of:[
-    { k:'techniques', label:'Страницы', type:'list', titleKey:'title', add:'Добавить технику', of:[
+S.services = [
+  { k:'', type:'group', label:'Направления', of:[
+    { k:'services', label:'Страницы услуг', type:'list', titleKey:'title', add:'Добавить направление', of:[
       { k:'title', label:'Название' },
-      { k:'accusative', label:'Во что записаться', hint:'— «Записаться на балаяж»' },
-      { k:'slug', label:'Адрес страницы', hint:'— латиницей: services/balayazh.html' },
+      { k:'id', label:'Код направления', hint:'— manicure, pedicure, brows: по нему подбираются цены, мастера и работы' },
+      { k:'slug', label:'Адрес страницы', hint:'— латиницей: manicure.html' },
       { k:'h1', label:'Заголовок страницы' },
-      { k:'metaTitle', label:'Title для поиска', hint:'— до 70 символов' },
-      { k:'metaDescription', label:'Description для поиска', type:'area' },
+      { k:'metaTitle', label:'Заголовок для поиска', hint:'— от 20 до 75 символов' },
+      { k:'metaDescription', label:'Описание для поиска', type:'area', hint:'— от 50 символов' },
+      { k:'icon', label:'Значок', type:'select', options:['hand','foot','brow','sparkle','heart'] },
       { k:'lead', label:'Вступление', type:'area' },
       { k:'priceFrom', label:'Цена от, руб.', type:'num' },
-      { k:'priceNote', label:'Уточнение к цене' },
-      { k:'duration', label:'Сколько занимает' },
+      { k:'priceWithCoating', label:'Цена с покрытием, руб.', type:'num' },
+      { k:'duration', label:'Длительность строкой' },
       { k:'keepsFor', label:'Сколько держится' },
-      { k:'masterSlug', label:'Кто делает', hint:'— адрес страницы мастера, например marina' },
-      { k:'what', label:'«Что это такое» — абзацы', type:'strings', area:true, add:'Добавить абзац' },
-      { k:'suits', label:'Подойдёт, если', type:'strings', area:true, add:'Добавить пункт' },
-      { k:'notSuits', label:'Лучше выбрать другое, если', type:'strings', area:true, add:'Добавить пункт' },
-      { k:'steps', label:'Как проходит визит', type:'pairs', labels:['Этап','Что происходит'], add:'Добавить этап' },
-      { k:'aftercare', label:'Уход после', type:'strings', area:true, add:'Добавить пункт' },
-      { k:'related', label:'Другие техники', type:'strings', add:'Добавить', hint:'— адреса страниц: ombre, airtouch' },
+      { k:'steps', label:'Как проходит визит', type:'list', titleKey:'title', add:'Добавить шаг',
+        of:[ { k:'title', label:'Шаг' }, { k:'text', label:'Что происходит', type:'area' } ] },
+      { k:'includes', label:'Что входит в цену', type:'strings', add:'Добавить пункт' },
+      { k:'highlight', type:'sub', label:'Выделенный блок', of:[
+        { k:'title', label:'Заголовок' },
+        { k:'text', label:'Текст', type:'area' },
+        { k:'cta', label:'Надпись на кнопке' },
+      ]},
+      { k:'faq', label:'Вопросы и ответы', type:'list', titleKey:'q', add:'Добавить вопрос',
+        of:[ { k:'q', label:'Вопрос' }, { k:'a', label:'Ответ', type:'area' } ] },
+      { k:'masters', label:'Кто ведёт', type:'strings', add:'Добавить мастера', hint:'— адреса страниц: ekaterina, karina' },
     ]},
   ]},
 ];
 
 S.content = [
-  { k:'', type:'group', label:'Услуги на главной', of:[
-    { k:'serviceBlocks', label:'Блоки', type:'list', titleKey:'title', add:'Добавить блок', of:[
+  { k:'', type:'group', label:'Первый экран', of:[
+    { k:'hero', type:'sub', label:'Главная, верх страницы', of:[
+      { k:'kicker', label:'Надпись сверху' },
       { k:'title', label:'Заголовок' },
-      { k:'text', label:'Описание', type:'area' },
-      { k:'priceHint', label:'Цена строкой' },
-      { k:'href', label:'Ссылка' },
-      { k:'icon', label:'Значок', type:'select', options:['scissors','drop','hand','leaf','eye','sparkle','shield','star'] },
-      { k:'id', label:'Якорь' },
-      { k:'links', label:'Ссылки-подстраницы', type:'list', titleKey:'title', add:'Добавить ссылку',
-        of:[ { k:'title', label:'Название' }, { k:'href', label:'Ссылка' } ] },
+      { k:'text', label:'Подзаголовок', type:'area' },
+      { k:'photoLabel', label:'Что на фотографии', hint:'— подпись внутри заглушки' },
+      { k:'facts', label:'Цифры', type:'list', titleKey:'value', add:'Добавить цифру',
+        of:[ { k:'value', label:'Значение' }, { k:'label', label:'Подпись' } ] },
+    ]},
+    { k:'serviceCards', label:'Карточки услуг на главной', type:'list', titleKey:'id', add:'Добавить карточку',
+      of:[ { k:'id', label:'Направление', type:'select', options:['manicure','pedicure','brows'] },
+           { k:'priceHint', label:'Цена строкой' }, { k:'text', label:'Описание', type:'area' } ] },
+  ]},
+  { k:'', type:'group', label:'Стерильность', of:[
+    { k:'sterility', type:'sub', label:'Блок доверия', of:[
+      { k:'title', label:'Заголовок' },
+      { k:'lead', label:'Вступление', type:'area' },
+      { k:'steps', label:'Этапы обработки', type:'list', titleKey:'title', add:'Добавить этап',
+        of:[ { k:'title', label:'Этап' }, { k:'text', label:'Что происходит', type:'area' } ] },
+      { k:'disposable', type:'sub', label:'Одноразовое', of:[
+        { k:'title', label:'Заголовок' },
+        { k:'items', label:'Пункты', type:'strings', add:'Добавить пункт' },
+      ]},
+      { k:'note', label:'Приписка про уточнение', type:'area' },
+      { k:'demo', label:'Черновик — режимы уточнить у владельцев', type:'check' },
     ]},
   ]},
-  { k:'', type:'group', label:'Галерея работ', of:[
-    { k:'works', label:'Работы', type:'list', titleKey:'title', add:'Добавить работу', of:[
+  { k:'', type:'group', label:'Атмосфера', of:[
+    { k:'atmosphere', type:'sub', label:'Блок «Как здесь»', of:[
+      { k:'title', label:'Заголовок' },
+      { k:'lead', label:'Вступление', type:'area' },
+      { k:'items', label:'Пункты', type:'list', titleKey:'title', add:'Добавить пункт',
+        of:[ { k:'title', label:'Заголовок' }, { k:'text', label:'Текст', type:'area' } ] },
+      { k:'photoLabels', label:'Подписи к фотографиям', type:'strings', add:'Добавить фотографию' },
+    ]},
+  ]},
+  { k:'', type:'group', label:'Работы', of:[
+    { k:'worksIntro', type:'sub', label:'Вступление к галерее', of:[
+      { k:'title', label:'Заголовок' },
+      { k:'lead', label:'Текст', type:'area' },
+    ]},
+    { k:'works', label:'Галерея', type:'list', titleKey:'title', add:'Добавить работу', of:[
       { k:'title', label:'Подпись' },
-      { k:'tag', label:'Метка', hint:'— «Окрашивание», «Стрижка»' },
-      { k:'master', label:'Мастер', hint:'— адрес страницы: marina' },
+      { k:'direction', label:'Направление', type:'select', options:['manicure','pedicure','brows'] },
+      { k:'master', label:'Мастер', hint:'— адрес страницы: ekaterina, karina' },
+      { k:'kind', label:'Тип', type:'select', options:['work','fix'], hint:'— fix показывается в блоке «до и после»' },
+      { k:'before', label:'Подпись «до»', hint:'— только для типа fix' },
+      { k:'after', label:'Подпись «после»', hint:'— только для типа fix' },
     ]},
   ]},
-  { k:'', type:'group', label:'Вопросы и ответы', of:[
-    { k:'faq', label:'Вопросы', type:'list', titleKey:'q', add:'Добавить вопрос', of:[
-      { k:'q', label:'Вопрос' },
-      { k:'a', label:'Ответ', type:'area' },
-      { k:'demo', label:'Демо-данные, уточнить у владельца', type:'check' },
+  { k:'', type:'group', label:'Отзывы', of:[
+    { k:'reviewsIntro', type:'sub', label:'Вступление и призыв', of:[
+      { k:'title', label:'Заголовок' },
+      { k:'lead', label:'Текст', type:'area' },
+      { k:'note', label:'Приписка про черновик', type:'area' },
+      { k:'cta', type:'sub', label:'Блок «оставьте отзыв»', of:[
+        { k:'title', label:'Заголовок' },
+        { k:'text', label:'Текст', type:'area' },
+        { k:'button', label:'Надпись на кнопке' },
+        { k:'href', label:'Ссылка на отзывы в Google' },
+      ]},
+    ]},
+    { k:'reviews', label:'Отзывы', type:'list', titleKey:'author', add:'Добавить отзыв', of:[
+      { k:'author', label:'Кто написал' },
+      { k:'source', label:'Площадка', type:'select', options:['Google Maps','firmi.by','Instagram','2GIS'] },
+      { k:'date', label:'Когда' },
+      { k:'rating', label:'Оценка', type:'num' },
+      { k:'direction', label:'Направление', type:'select', options:['manicure','pedicure','brows'] },
+      { k:'text', label:'Текст отзыва', type:'area' },
+      { k:'demo', label:'Черновик — заменить на настоящий отзыв', type:'check' },
     ]},
   ]},
-  { k:'entrance', type:'group', label:'Вход в салон', of:[
-    { k:'title', label:'Заголовок' },
-    { k:'lead', label:'Вступление', type:'area' },
-    { k:'steps', label:'Ориентиры', type:'pairs', labels:['Шаг','Пояснение'], add:'Добавить шаг' },
-    { k:'demo', label:'Демо-данные, уточнить у владельца', type:'check' },
+  { k:'', type:'group', label:'Подарочные сертификаты', of:[
+    { k:'gift', type:'sub', label:'Страница сертификатов', of:[
+      { k:'title', label:'Заголовок' },
+      { k:'lead', label:'Вступление', type:'area' },
+      { k:'nominals', label:'Номиналы', type:'list', titleKey:'value', add:'Добавить номинал',
+        of:[ { k:'value', label:'Сумма, руб.', type:'num' }, { k:'text', label:'На что хватит' },
+             { k:'custom', label:'Любая сумма', type:'check' } ] },
+      { k:'terms', label:'Условия', type:'strings', area:true, add:'Добавить условие' },
+      { k:'how', type:'sub', label:'Как купить', of:[
+        { k:'title', label:'Заголовок' },
+        { k:'steps', label:'Шаги', type:'list', titleKey:'title', add:'Добавить шаг',
+          of:[ { k:'title', label:'Шаг' }, { k:'text', label:'Пояснение', type:'area' } ] },
+      ]},
+      { k:'seasons', label:'Про сезонный спрос', type:'area' },
+      { k:'demo', label:'Черновик — согласовать с владельцами', type:'check' },
+    ]},
   ]},
-  { k:'', type:'group', label:'О салоне', of:[
-    { k:'aboutParagraphs', label:'Абзацы', type:'strings', area:true, add:'Добавить абзац' },
-    { k:'aboutFacts', label:'Цифры под текстом', type:'list', titleKey:'value', add:'Добавить цифру',
-      of:[ { k:'value', label:'Значение' }, { k:'label', label:'Подпись' } ] },
+  { k:'', type:'group', label:'Контакты', of:[
+    { k:'contactsExtra', type:'sub', label:'Дорога и форма', of:[
+      { k:'route', type:'sub', label:'Как дойти от метро', of:[
+        { k:'title', label:'Заголовок' },
+        { k:'steps', label:'Шаги', type:'list', titleKey:'title', add:'Добавить шаг',
+          of:[ { k:'title', label:'Шаг' }, { k:'text', label:'Пояснение', type:'area' } ] },
+        { k:'note', label:'Приписка про уточнение', type:'area' },
+        { k:'demo', label:'Черновик — ориентиры уточнить', type:'check' },
+      ]},
+      { k:'parking', label:'Про парковку', type:'area' },
+      { k:'formTitle', label:'Заголовок формы' },
+      { k:'formLead', label:'Пояснение к форме', type:'area' },
+    ]},
+  ]},
+  { k:'', type:'group', label:'Вопросы на главной', of:[
+    { k:'homeFaq', label:'Вопросы', type:'list', titleKey:'q', add:'Добавить вопрос',
+      of:[ { k:'q', label:'Вопрос' }, { k:'a', label:'Ответ', type:'area' } ] },
   ]},
 ];
 
 var SECTIONS = [
-  { id:'site',       name:'Салон и контакты', file:'site',
-    lead:'Адрес, телефоны, график и реквизиты. Меняется здесь — меняется в шапке, подвале, на контактах и в микроразметке для поиска.' },
-  { id:'prices',     name:'Цены', file:'prices',
-    lead:'Позиция попадает сразу в три места: на страницу цен, в список услуг формы записи и в микроразметку. «Показывать от» выводит «от 45 руб.» вместо «45 руб.».' },
-  { id:'masters',    name:'Мастера', file:'masters',
-    lead:'Падежи заполняйте все три, иначе на кнопке получится «Записаться к Лариса». Число подписей в портфолио задаёт, сколько мест под фотографии будет на странице.' },
-  { id:'techniques', name:'Окрашивание', file:'techniques',
-    lead:'Отдельные страницы под балаяж, омбре, AirTouch и мелирование — они ловят поиск по конкретным запросам. Новая техника добавляется копированием соседней.' },
-  { id:'content',    name:'Тексты страниц', file:'content',
-    lead:'Блоки услуг на главной, галерея, вопросы-ответы, «Вход в салон» и «О салоне».' },
+  { id:'site',     name:'Студия и контакты', file:'site',
+    lead:'Адрес, телефон, мессенджеры, график и реквизиты. Меняется здесь — меняется в шапке, подвале, на контактах и в микроразметке для поиска и карт.' },
+  { id:'prices',   name:'Цены', file:'prices',
+    lead:'У каждой позиции — цена и длительность: это прямой ответ на две главные претензии клиентов, «неожиданный чек» и «долго». Позиция сразу попадает и в таблицу, и в список услуг в форме записи.' },
+  { id:'services', name:'Услуги', file:'services',
+    lead:'Три отдельные страницы под маникюр, педикюр и брови — они ловят разные запросы в поиске. Код направления связывает страницу с ценами, мастерами и работами.' },
+  { id:'masters',  name:'Мастера', file:'masters',
+    lead:'Падежи заполняйте все: иначе на кнопке получится «Записаться к Карина». Число подписей к работам задаёт, сколько мест под фотографии появится на странице мастера.' },
+  { id:'content',  name:'Тексты страниц', file:'content',
+    lead:'Первый экран, стерильность, атмосфера, галерея, отзывы, сертификаты и вопросы-ответы.' },
 ];
 
 /* --- Состояние ---------------------------------------------------------- */
@@ -581,9 +704,19 @@ function listField(spec, obj) {
   return box;
 }
 
+/** Вложенный объект: {title, items} внутри карточки. */
+function subGroup(spec, obj) {
+  if (!obj[spec.k] || typeof obj[spec.k] !== 'object') obj[spec.k] = {};
+  var fs = el('fieldset');
+  fs.appendChild(el('legend', null, spec.label));
+  renderSpecs(fs, spec.of, obj[spec.k]);
+  return fs;
+}
+
 function renderSpecs(host, specs, obj) {
   specs.forEach(function (spec) {
-    if (spec.type === 'check') host.appendChild(checkbox(spec, obj));
+    if (spec.type === 'sub') host.appendChild(subGroup(spec, obj));
+    else if (spec.type === 'check') host.appendChild(checkbox(spec, obj));
     else if (spec.type === 'phone') host.appendChild(phoneField(spec, obj));
     else if (spec.type === 'phone-label') host.appendChild(phoneLabelField(spec, obj));
     else if (spec.type === 'email') host.appendChild(emailField(spec, obj));
@@ -690,7 +823,7 @@ $('#revert').addEventListener('click', function () {
   log('');
 });
 
-$('#open-preview').addEventListener('click', function () { window.open('/preview/index.html', 'pafia-preview'); });
+$('#open-preview').addEventListener('click', function () { window.open('/preview/index.html', 'naillounge-preview'); });
 
 window.addEventListener('beforeunload', function (e) {
   if (dirty) { e.preventDefault(); e.returnValue = ''; }

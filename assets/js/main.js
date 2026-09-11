@@ -1,68 +1,71 @@
-/* Салон «Пафия» — клиентская логика.
-   Без зависимостей: меню, модалка записи, валидация формы, cookie-баннер,
-   отложенная загрузка карты и цели аналитики. */
+/* nail.lounge — клиентская логика. Без зависимостей.
+   Меню, запись, фильтр работ, «до и после», карта, cookie-баннер.
+
+   Настройки приходят из разметки: window.NL_CONFIG. Если bookingEndpoint
+   пустой, форма не исчезает — она собирает готовое сообщение и передаёт
+   его в мессенджер. Так запись работает на статике, без сервера. */
 (function () {
   'use strict';
 
-  /* --------------------------------------------------------------------
-     Настройки интеграций. Перед запуском подставить реальные значения.
-     BOOKING_ENDPOINT — URL, куда уходит заявка (бот в Telegram, YClients,
-     DIKIDI или собственный обработчик). Пока пусто — форма работает
-     в демо-режиме: показывает подтверждение и пишет заявку в консоль.
-     -------------------------------------------------------------------- */
-  var CONFIG = window.PAFIA_CONFIG || {};
-  var BOOKING_ENDPOINT = CONFIG.bookingEndpoint || '';
-  var METRIKA_ID = CONFIG.metrikaId || '';
-  var COOKIE_KEY = 'pafia-cookie-choice';
+  var CONFIG = window.NL_CONFIG || {};
+  var ENDPOINT = CONFIG.bookingEndpoint || '';
+  var PHONE = CONFIG.phone || '';
+  var COOKIE_KEY = 'nl-cookie-choice';
 
   var $ = function (sel, ctx) { return (ctx || document).querySelector(sel); };
   var $$ = function (sel, ctx) { return Array.prototype.slice.call((ctx || document).querySelectorAll(sel)); };
 
-  /* --- Мобильное меню ------------------------------------------------- */
+  /* --- Меню на телефоне ------------------------------------------------ */
   (function menu() {
     var burger = $('.burger');
     var panel = $('#mobile-menu');
     if (!burger || !panel) return;
+
+    var close = function () {
+      burger.setAttribute('aria-expanded', 'false');
+      panel.hidden = true;
+    };
 
     burger.addEventListener('click', function () {
       var open = burger.getAttribute('aria-expanded') === 'true';
       burger.setAttribute('aria-expanded', String(!open));
       panel.hidden = open;
     });
-
-    $$('a', panel).forEach(function (a) {
-      a.addEventListener('click', function () {
-        burger.setAttribute('aria-expanded', 'false');
-        panel.hidden = true;
-      });
-    });
-
+    $$('a', panel).forEach(function (a) { a.addEventListener('click', close); });
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape' && burger.getAttribute('aria-expanded') === 'true') {
-        burger.setAttribute('aria-expanded', 'false');
-        panel.hidden = true;
+        close();
         burger.focus();
       }
     });
   })();
 
-  /* --- Модалка записи -------------------------------------------------- */
-  (function modal() {
+  /* --- Окно записи ------------------------------------------------------ */
+  var modal = (function () {
     var dialog = $('#booking-modal');
-    if (!dialog) return;
+    if (!dialog) return { open: function () {} };
     var lastFocused = null;
+
+    function setSelect(select, value) {
+      if (!select || !value) return;
+      var found = $$('option', select).some(function (o) {
+        if (o.value === value || o.textContent.indexOf(value) === 0) { select.value = o.value; return true; }
+        return false;
+      });
+      if (!found) select.value = '';
+    }
 
     function open(master, service) {
       var form = $('#booking-form-modal');
       if (form) {
-        if (master) setSelect($('[data-master-select]', form), master);
-        if (service) setSelect($('[data-service-select]', form), service);
+        setSelect($('[data-master-select]', form), master);
+        setSelect($('[data-service-select]', form), service);
       }
       lastFocused = document.activeElement;
       if (typeof dialog.showModal === 'function') dialog.showModal();
       else dialog.setAttribute('open', '');
-      var first = $('input[name="name"]', dialog);
-      if (first) setTimeout(function () { first.focus(); }, 40);
+      var first = $('.channel', dialog) || $('input, select, button', dialog);
+      if (first) first.focus();
     }
 
     function close() {
@@ -71,230 +74,307 @@
       if (lastFocused) lastFocused.focus();
     }
 
-    function setSelect(select, value) {
-      if (!select) return;
-      var match = Array.prototype.find.call(select.options, function (o) {
-        return o.value === value || o.textContent.indexOf(value) === 0;
-      });
-      if (match) select.value = match.value;
-    }
-
-    // На странице /booking форма уже открыта — там ведём к ней, а не дублируем
-    // её в модалке.
-    var inlineForm = $('#booking-form-standalone');
+    dialog.addEventListener('click', function (e) {
+      // Клик по затемнённому фону — за пределами внутренней карточки.
+      if (e.target === dialog) close();
+      if (e.target.closest('[data-close-modal]')) close();
+    });
 
     document.addEventListener('click', function (e) {
       var trigger = e.target.closest('[data-book]');
-      if (trigger) {
-        e.preventDefault();
-        if (inlineForm) {
-          inlineForm.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          var field = $('input[name="name"]', inlineForm);
-          if (field) field.focus({ preventScroll: true });
-          return;
-        }
-        open(trigger.getAttribute('data-master'), trigger.getAttribute('data-service'));
-        return;
-      }
-      if (e.target.closest('[data-close-modal]')) close();
-      // Клик по подложке диалога
-      if (e.target === dialog) close();
+      if (!trigger) return;
+      e.preventDefault();
+      open(trigger.getAttribute('data-master') || '', trigger.getAttribute('data-service') || '');
     });
+
+    return { open: open, close: close };
   })();
 
-  /* --- Форма записи ---------------------------------------------------- */
-  function normalizePhone(value) {
-    var digits = value.replace(/\D/g, '');
-    if (digits.indexOf('375') === 0) digits = digits.slice(3);
-    else if (digits.indexOf('80') === 0) digits = digits.slice(2);
-    if (digits.length !== 9) return null;
-    return '+375' + digits;
-  }
-
-  function setError(form, name, message) {
-    var box = $('[data-error-for="' + name + '"]', form);
-    var input = form.elements[name];
-    // Место под сообщение зарезервировано в стилях, поэтому смена текста
-    // не двигает то, что расположено ниже.
-    if (box) box.textContent = message || '';
-    if (input && input.setAttribute) input.setAttribute('aria-invalid', message ? 'true' : 'false');
-  }
-
-  $$('form.form').forEach(function (form) {
-    var dateInput = $('[data-date]', form);
-    if (dateInput) {
-      var today = new Date();
-      var pad = function (n) { return String(n).padStart(2, '0'); };
-      dateInput.min = today.getFullYear() + '-' + pad(today.getMonth() + 1) + '-' + pad(today.getDate());
-    }
-
-    var phone = $('[data-phone]', form);
-    if (phone) {
-      phone.addEventListener('blur', function () {
-        if (!phone.value.trim()) return;
-        var normalized = normalizePhone(phone.value);
-        if (normalized) {
-          phone.value = normalized.replace(/^(\+375)(\d{2})(\d{3})(\d{2})(\d{2})$/, '$1 $2 $3-$4-$5');
-          setError(form, 'phone', '');
-        }
-      });
-    }
-
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
-      var ok = true;
-
-      var name = form.elements.name;
-      if (!name.value.trim()) { setError(form, 'name', 'Напишите, как к вам обращаться'); ok = false; }
-      else setError(form, 'name', '');
-
-      // В Беларуси национальный номер — всегда 9 цифр после +375.
-      var normalized = normalizePhone(form.elements.phone.value);
-      if (!normalized) {
-        setError(form, 'phone', 'Проверьте номер телефона — нужен формат +375 XX XXX-XX-XX');
-        ok = false;
-      } else setError(form, 'phone', '');
-
-      var consent = form.elements.consent;
-      if (!consent.checked) { setError(form, 'consent', 'Без согласия на обработку данных мы не можем принять заявку'); ok = false; }
-      else setError(form, 'consent', '');
-
-      if (!ok) {
-        var firstBad = $('[aria-invalid="true"]', form) || $('[name="consent"]', form);
-        if (firstBad) firstBad.focus();
-        return;
-      }
-
-      var payload = {
-        name: name.value.trim(),
-        phone: normalized,
-        service: form.elements.service.value || 'не выбрана',
-        master: form.elements.master.value || 'любой свободный',
-        date: form.elements.date.value || 'не указана',
-        time: form.elements.time.value || 'не принципиально',
-        comment: form.elements.comment.value.trim(),
-        page: location.pathname,
-      };
-
-      var button = $('button[type="submit"]', form);
-      if (button) { button.disabled = true; button.textContent = 'Отправляем…'; }
-
-      send(payload)
-        .then(function () {
-          form.reset();
-          var done = $('.form__done', form);
-          if (done) done.hidden = false;
-          $$('.field, .check, .form__note, button[type="submit"]', form).forEach(function (el) { el.hidden = true; });
-          goal('booking_sent');
-        })
-        .catch(function () {
-          if (button) { button.disabled = false; button.textContent = 'Записаться'; }
-          setError(form, 'phone', 'Не удалось отправить заявку. Позвоните, пожалуйста: +375 29 615-15-99');
-        });
+  /* --- Телефон: подсказываем формат, но не мешаем вводить -------------- */
+  $$('[data-phone]').forEach(function (input) {
+    input.addEventListener('input', function () {
+      var digits = input.value.replace(/\D/g, '').replace(/^375/, '');
+      if (!digits) { input.value = ''; return; }
+      var out = '+375';
+      if (digits.length) out += ' ' + digits.slice(0, 2);
+      if (digits.length > 2) out += ' ' + digits.slice(2, 5);
+      if (digits.length > 5) out += '-' + digits.slice(5, 7);
+      if (digits.length > 7) out += '-' + digits.slice(7, 9);
+      input.value = out;
     });
   });
 
-  function send(payload) {
-    if (!BOOKING_ENDPOINT) {
-      // Демо-режим: бэкенда ещё нет.
-      console.info('[Пафия] Заявка (демо-режим, endpoint не задан):', payload);
-      return new Promise(function (resolve) { setTimeout(resolve, 400); });
+  /* --- Дата: не даём выбрать вчерашний день ---------------------------- */
+  $$('[data-date]').forEach(function (input) {
+    var today = new Date();
+    input.min = today.toISOString().slice(0, 10);
+    var limit = new Date(today.getTime() + 90 * 864e5);
+    input.max = limit.toISOString().slice(0, 10);
+  });
+
+  /* --- Форма записи ----------------------------------------------------- */
+  function fieldError(form, name, message) {
+    var box = $('[data-error-for="' + name + '"]', form);
+    var input = form.elements[name];
+    if (box) box.textContent = message || '';
+    if (input && input.setAttribute) {
+      if (message) input.setAttribute('aria-invalid', 'true');
+      else input.removeAttribute('aria-invalid');
     }
-    return fetch(BOOKING_ENDPOINT, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    }).then(function (r) {
-      if (!r.ok) throw new Error('HTTP ' + r.status);
-      return r;
-    });
   }
 
-  /* --- График работы: подсветка «сегодня» ------------------------------ */
-  (function todayStatus() {
-    var hoursNodes = $$('[data-today-hours]');
-    var stateNodes = $$('[data-today-state]');
-    if (!hoursNodes.length && !stateNodes.length) return;
+  function validate(form) {
+    var ok = true;
+    var name = (form.elements.name.value || '').trim();
+    var phone = (form.elements.phone.value || '').replace(/\D/g, '');
 
-    var now = new Date();
-    var isSunday = now.getDay() === 0;
-    var opens = isSunday ? 10 : 9;
-    var closes = isSunday ? 19 : 21;
-    var minutes = now.getHours() * 60 + now.getMinutes();
-    var isOpen = minutes >= opens * 60 && minutes < closes * 60;
+    fieldError(form, 'name', '');
+    fieldError(form, 'phone', '');
+    fieldError(form, 'consent', '');
 
-    hoursNodes.forEach(function (node) {
-      node.textContent = 'Сегодня ' + opens + ':00–' + closes + ':00';
+    if (name.length < 2) { fieldError(form, 'name', 'Напишите, как к вам обращаться'); ok = false; }
+    if (phone.length < 11) { fieldError(form, 'phone', 'Телефон нужен, чтобы подтвердить запись'); ok = false; }
+    if (form.elements.consent && !form.elements.consent.checked) {
+      fieldError(form, 'consent', 'Без согласия мы не можем обработать заявку');
+      ok = false;
+    }
+    if (!ok) {
+      var bad = $('[aria-invalid="true"], [data-error-for]:not(:empty)', form);
+      if (bad && bad.focus) bad.focus();
+    }
+    return ok;
+  }
+
+  function collect(form) {
+    var get = function (n) { return form.elements[n] ? String(form.elements[n].value || '').trim() : ''; };
+    return {
+      name: get('name'),
+      phone: get('phone'),
+      service: get('service'),
+      master: get('master'),
+      date: get('date'),
+      time: get('time'),
+      comment: get('comment'),
+    };
+  }
+
+  function asMessage(data) {
+    var lines = ['Здравствуйте! Хочу записаться.'];
+    lines.push('Имя: ' + data.name);
+    lines.push('Телефон: ' + data.phone);
+    if (data.service) lines.push('Услуга: ' + data.service);
+    if (data.master) lines.push('Мастер: ' + data.master);
+    if (data.date) lines.push('Дата: ' + data.date);
+    if (data.time) lines.push('Время: ' + data.time);
+    if (data.comment) lines.push('Комментарий: ' + data.comment);
+    return lines.join('\n');
+  }
+
+  $$('form.form').forEach(function (form) {
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (!validate(form)) return;
+
+      var data = collect(form);
+      var done = $('.form__done', form);
+      var send = $('.form__send', form);
+      var button = $('button[type="submit"]', form);
+
+      var finish = function (text) {
+        if (done) {
+          if (text) $('strong', done).textContent = text;
+          done.hidden = false;
+        }
+        if (send) send.hidden = false;
+        goal('booking');
+      };
+
+      if (ENDPOINT) {
+        if (button) { button.disabled = true; button.textContent = 'Отправляем…'; }
+        fetch(ENDPOINT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        })
+          .then(function (r) {
+            if (!r.ok) throw new Error('bad status');
+            form.reset();
+            finish('Заявка отправлена.');
+          })
+          .catch(function () {
+            // Сеть подвела — не теряем заявку, предлагаем мессенджер.
+            prepareLinks(form, data);
+            finish('Не получилось отправить автоматически.');
+          })
+          .then(function () {
+            if (button) { button.disabled = false; button.textContent = 'Записаться'; }
+          });
+        return;
+      }
+
+      prepareLinks(form, data);
+      finish('Заявка готова.');
     });
-    stateNodes.forEach(function (node) {
-      node.textContent = isOpen
-        ? 'Сейчас открыто'
-        : minutes < opens * 60
-          ? 'Откроемся в ' + opens + ':00'
-          : 'Сейчас закрыто';
+  });
+
+  /* Готовое сообщение подставляем в ссылки мессенджеров: на статике это
+     надёжнее почты — заявка уходит туда, где администратор и так сидит. */
+  function prepareLinks(form, data) {
+    var text = asMessage(data);
+    var send = $('.form__send', form);
+    if (!send) return;
+    $$('[data-send]', send).forEach(function (a) {
+      var kind = a.getAttribute('data-send');
+      var digits = PHONE.replace(/\D/g, '');
+      if (kind === 'telegram') a.href = 'https://t.me/share/url?url=&text=' + encodeURIComponent(text);
+      if (kind === 'whatsapp') a.href = 'https://wa.me/' + digits + '?text=' + encodeURIComponent(text);
+      if (kind === 'viber') a.href = 'viber://chat?number=%2B' + digits;
+      if (kind === 'copy') {
+        a.addEventListener('click', function (e) {
+          e.preventDefault();
+          var write = navigator.clipboard && navigator.clipboard.writeText
+            ? navigator.clipboard.writeText(text)
+            : Promise.reject();
+          write.then(function () { a.textContent = 'Скопировано'; })
+            .catch(function () { window.prompt('Скопируйте текст заявки', text); });
+        }, { once: true });
+      }
     });
+    var area = $('[data-message]', send);
+    if (area) area.value = text;
+  }
+
+  /* --- Фильтр работ ----------------------------------------------------- */
+  (function worksFilter() {
+    var gallery = $('[data-gallery]');
+    if (!gallery) return;
+    var state = { direction: 'all', master: 'all' };
+
+    function apply() {
+      var shown = 0;
+      $$('[data-work]', gallery).forEach(function (item) {
+        var okDir = state.direction === 'all' || item.getAttribute('data-direction') === state.direction;
+        var okMaster = state.master === 'all' || item.getAttribute('data-master') === state.master;
+        var visible = okDir && okMaster;
+        item.classList.toggle('is-hidden', !visible);
+        if (visible) shown++;
+      });
+      var empty = $('[data-empty]');
+      if (empty) empty.hidden = shown > 0;
+      var counter = $('[data-count]');
+      if (counter) counter.textContent = String(shown);
+    }
+
+    $$('[data-filter]').forEach(function (chip) {
+      chip.addEventListener('click', function () {
+        var group = chip.getAttribute('data-filter');
+        state[group] = chip.getAttribute('data-value');
+        $$('[data-filter="' + group + '"]').forEach(function (c) {
+          c.setAttribute('aria-pressed', String(c === chip));
+        });
+        apply();
+      });
+    });
+    apply();
   })();
 
-  /* --- Карта по клику (не тянем Яндекс, пока не попросили) ------------- */
-  (function map() {
-    var box = $('[data-map]');
-    if (!box) return;
-    var button = $('[data-map-load]', box);
+  /* --- «До и после» ----------------------------------------------------- */
+  $$('[data-ba]').forEach(function (box) {
+    var range = $('input[type="range"]', box);
+    var after = $('.ba__after', box);
+    if (!range || !after) return;
+    var move = function () { after.style.width = range.value + '%'; };
+    range.addEventListener('input', move);
+    move();
+  });
+
+  /* --- Якоря на странице цен: подсвечиваем текущий раздел -------------- */
+  (function priceNav() {
+    var nav = $('.pricenav');
+    if (!nav || !('IntersectionObserver' in window)) return;
+    var links = $$('a', nav);
+    var sections = links
+      .map(function (a) { return document.getElementById(a.getAttribute('href').replace(/^.*#/, '')); })
+      .filter(Boolean);
+    if (!sections.length) return;
+
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        links.forEach(function (a) {
+          a.classList.toggle('is-active', a.getAttribute('href').replace(/^.*#/, '') === entry.target.id);
+        });
+      });
+    }, { rootMargin: '-140px 0px -70% 0px' });
+    sections.forEach(function (s) { io.observe(s); });
+  })();
+
+  /* --- Карта по клику: iframe тянет много и тормозит первый экран ------ */
+  $$('[data-map]').forEach(function (box) {
+    var button = $('button', box);
     if (!button) return;
     button.addEventListener('click', function () {
-      var iframe = document.createElement('iframe');
-      iframe.src = box.getAttribute('data-map-src');
-      iframe.title = 'Салон «Пафия» на карте: Минск, Притыцкого, 73';
-      iframe.loading = 'lazy';
-      iframe.allowFullscreen = true;
+      var frame = document.createElement('iframe');
+      frame.src = box.getAttribute('data-map');
+      frame.loading = 'lazy';
+      frame.title = 'Карта: как нас найти';
+      frame.setAttribute('referrerpolicy', 'no-referrer-when-downgrade');
       box.innerHTML = '';
-      box.appendChild(iframe);
+      box.appendChild(frame);
     });
-  })();
+  });
 
-  /* --- Cookie-баннер и аналитика --------------------------------------- */
+  /* --- Cookie-баннер ---------------------------------------------------- */
   (function cookies() {
     var bar = $('#cookiebar');
-    var choice = null;
-    try { choice = localStorage.getItem(COOKIE_KEY); } catch (e) { /* приватный режим */ }
-
-    if (choice === 'accept') loadMetrika();
-    if (!choice && bar) bar.hidden = false;
     if (!bar) return;
-
-    bar.addEventListener('click', function (e) {
-      var btn = e.target.closest('[data-cookie]');
-      if (!btn) return;
-      var value = btn.getAttribute('data-cookie');
-      try { localStorage.setItem(COOKIE_KEY, value); } catch (err) { /* игнорируем */ }
-      bar.hidden = true;
-      if (value === 'accept') loadMetrika();
+    var stored = null;
+    try { stored = localStorage.getItem(COOKIE_KEY); } catch (e) { stored = null; }
+    if (stored) {
+      if (stored === 'accept') loadAnalytics();
+      return;
+    }
+    bar.hidden = false;
+    $$('[data-cookie]', bar).forEach(function (button) {
+      button.addEventListener('click', function () {
+        var choice = button.getAttribute('data-cookie');
+        try { localStorage.setItem(COOKIE_KEY, choice); } catch (e) { /* приватный режим */ }
+        bar.hidden = true;
+        if (choice === 'accept') loadAnalytics();
+      });
     });
   })();
 
-  function loadMetrika() {
-    if (!METRIKA_ID || window.ym) return;
-    window.ym = window.ym || function () { (window.ym.a = window.ym.a || []).push(arguments); };
-    window.ym.l = 1 * new Date();
-    var s = document.createElement('script');
-    s.async = true;
-    s.src = 'https://mc.yandex.ru/metrika/tag.js';
-    document.head.appendChild(s);
-    window.ym(METRIKA_ID, 'init', {
-      clickmap: true,
-      trackLinks: true,
-      accurateTrackBounce: true,
-      webvisor: true,
-    });
+  /* Аналитику подключаем только после согласия — требование для РБ. */
+  function loadAnalytics() {
+    if (CONFIG.metrikaId) {
+      window.ym = window.ym || function () { (window.ym.a = window.ym.a || []).push(arguments); };
+      window.ym.l = 1 * new Date();
+      var s = document.createElement('script');
+      s.src = 'https://mc.yandex.ru/metrika/tag.js';
+      s.async = true;
+      document.head.appendChild(s);
+      window.ym(CONFIG.metrikaId, 'init', { clickmap: true, trackLinks: true, accurateTrackBounce: true, webvisor: false });
+    }
+    if (CONFIG.gaId) {
+      var g = document.createElement('script');
+      g.src = 'https://www.googletagmanager.com/gtag/js?id=' + CONFIG.gaId;
+      g.async = true;
+      document.head.appendChild(g);
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { window.dataLayer.push(arguments); };
+      window.gtag('js', new Date());
+      window.gtag('config', CONFIG.gaId);
+    }
   }
 
-  /* --- Цели: звонок, Viber, отправка формы ----------------------------- */
   function goal(name) {
-    if (window.ym && METRIKA_ID) window.ym(METRIKA_ID, 'reachGoal', name);
+    if (window.ym && CONFIG.metrikaId) window.ym(CONFIG.metrikaId, 'reachGoal', name);
+    if (window.gtag) window.gtag('event', name);
   }
 
   document.addEventListener('click', function (e) {
-    var el = e.target.closest('[data-goal]');
-    if (el) goal(el.getAttribute('data-goal') === 'viber' ? 'viber_click' : 'phone_click');
+    var target = e.target.closest('[data-goal]');
+    if (target) goal(target.getAttribute('data-goal'));
   });
 })();

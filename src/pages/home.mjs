@@ -1,308 +1,220 @@
-import { layout, esc, bookingForm } from '../lib/layout.mjs';
+// Главная страница. Порядок блоков задан техзаданием: первый экран,
+// скидка первого визита, три направления, стерильность, мастера, работы,
+// отзывы, атмосфера, карта. Всё ведёт к одной кнопке — «Записаться».
+import { layout, esc, url, DEMO } from '../lib/layout.mjs';
+import {
+  sectionHead, firstVisitStrip, serviceCard, masterCard, workItem,
+  reviewCard, ratingBlock, faqBlock, faqSchema, bookingBand,
+} from '../lib/components.mjs';
 import { icon } from '../lib/icons.mjs';
+import { photo } from '../lib/photo.mjs';
 import { site } from '../data/site.mjs';
+import { services } from '../data/services.mjs';
 import { masters } from '../data/masters.mjs';
-import { topPrices, priceLabel, priceUpdated } from '../data/prices.mjs';
-import { serviceBlocks, works, faq, entrance, aboutParagraphs, aboutFacts } from '../data/content.mjs';
-import { techniques } from '../data/techniques.mjs';
-import { photo } from '../lib/placeholders.mjs';
-import { sectionHead, masterCard, ratingCard, ctaBand, faqList, priceRows, bookButton } from '../lib/components.mjs';
+import { hero, serviceCards, sterility, atmosphere, works, reviews, reviewsIntro, homeFaq } from '../data/content.mjs';
+import { mapBlock } from './contacts.mjs';
 
 export function homePage() {
+  const cards = serviceCards
+    .map((c) => {
+      const service = services.find((s) => s.id === c.id);
+      return service ? serviceCard(service, c, 0) : '';
+    })
+    .join('\n');
+
   const content = `
 <section class="hero">
-  <div class="wrap hero__inner">
-    <div class="hero__text">
-      <p class="eyebrow">Минск, Фрунзенский район · с 2011 года</p>
-      <h1 class="hero__title">Стрижка, цвет и маникюр рядом с «Кунцевщиной»</h1>
-      <p class="hero__lead">
-        Небольшой салон на Притыцкого, 73. Два парикмахерских кресла, маникюрный стол и отдельный кабинет
-        депиляции. К нам ходят к своим мастерам — по имени, а не по названию.
-      </p>
-      <div class="hero__actions">
-        ${bookButton('Записаться', { cls: 'btn btn--primary btn--lg' })}
-        <a class="btn btn--ghost btn--lg" href="prices.html">Посмотреть цены</a>
+  <div class="hero__media">
+    ${photo({
+      name: 'hero-studio',
+      label: esc(hero.photoLabel),
+      alt: 'Зал студии nail.lounge в центре Минска',
+      w: 1600,
+      h: 1200,
+      priority: true,
+      sizes: '100vw',
+    })}
+  </div>
+  <div class="wrap hero__body">
+    <div class="hero__card">
+      <span class="kicker">${esc(hero.kicker)}</span>
+      <h1>${esc(hero.title)}</h1>
+      <p class="hero__text">${esc(hero.text)}</p>
+      <div class="cta-row cta-row--start">
+        <button class="btn btn--primary btn--lg" type="button" data-book>Записаться</button>
+        <a class="btn btn--ghost btn--lg" href="prices.html">Смотреть цены</a>
       </div>
-      <ul class="hero__meta">
-        <li>${icon('clock')}<span><strong data-today-hours>Пн–сб 9:00–21:00</strong><br><span data-today-state>вс 10:00–19:00</span></span></li>
-        <li>${icon('pin')}<span><strong>Притыцкого, 73, офис 144</strong><br>260 м от метро «Кунцевщина»</span></li>
-        <li>${icon('star')}<span><strong>${esc(site.rating.value)} на Google</strong><br>по ${site.rating.count} отзывам</span></li>
-      </ul>
-    </div>
-    <div class="hero__media">
-      ${photo({
-        name: 'hero-hall',
-        label: 'Парикмахерский зал',
-        alt: 'Парикмахерский зал салона «Пафия» на Притыцкого, 73',
-        w: 900,
-        h: 1100,
-        priority: true,
-        className: 'hero__img',
-      })}
-      <div class="hero__badge">
-        <span class="hero__badge-value">15 лет</span>
-        <span class="hero__badge-label">на одном месте, без переездов</span>
+      <div class="hero__meta">
+        <p class="hero__meta-row">${icon('pin')}<span>${esc(site.address.city)}, ${esc(site.address.street)} · метро «${esc(site.metro.name)}», ${esc(site.metro.distance)}</span></p>
+        <p class="hero__meta-row">${icon('clock')}<span>${esc(site.hours[0].days)}, ${esc(site.hours[0].time)}</span></p>
+        <p class="hero__meta-row">${icon('phone')}<a href="${site.phonePrimary.href}" data-goal="phone">${esc(site.phonePrimary.label)}</a></p>
+      </div>
+      <div class="hero__facts">
+        ${hero.facts
+          .map((f) => `<span class="fact"><span class="fact__value">${esc(f.value)}</span><span class="fact__label">${esc(f.label)}</span></span>`)
+          .join('\n        ')}
       </div>
     </div>
   </div>
 </section>
 
-<section class="section section--tight" id="services">
+<section class="section section--tight">
+  <div class="wrap">
+    ${firstVisitStrip()}
+  </div>
+</section>
+
+<section class="section" id="services">
   <div class="wrap">
     ${sectionHead({
-      eyebrow: 'Услуги',
+      kicker: 'Три направления',
       title: 'Что мы делаем',
-      text: 'Цены открыты: их видно сразу, без записи и без звонка.',
-      action: '<a class="btn btn--ghost" href="prices.html">Все цены</a>',
+      lead: 'У каждого направления своя страница: что входит в процедуру, цены с длительностью и мастера, которые его ведут.',
     })}
-    <div class="grid grid--services">
-      ${serviceBlocks
-        .map(
-          (s) => `
-      <article class="scard">
-        <span class="scard__icon" aria-hidden="true">${icon(s.icon)}</span>
-        <h3 class="scard__title"><a href="${s.href}">${esc(s.title)}</a></h3>
-        <p class="scard__text">${esc(s.text)}</p>
-        <p class="scard__price">${esc(s.priceHint)}</p>
-        ${
-          s.links
-            ? `<ul class="scard__links">${s.links
-                .map((l) => `<li><a href="${l.href}">${esc(l.title)}</a></li>`)
-                .join('')}</ul>`
-            : ''
-        }
-      </article>`
-        )
-        .join('')}
+    <div class="grid grid--3">
+      ${cards}
     </div>
   </div>
 </section>
 
-<section class="section section--masters" id="masters">
+<section class="section section--soft" id="sterility">
   <div class="wrap">
-    ${sectionHead({
-      eyebrow: 'Мастера',
-      title: 'К кому вы идёте',
-      text: 'В отзывах о нас пишут не «хожу в Пафию», а «хожу к Ларисе». Записаться можно сразу к конкретному человеку.',
-      action: '<a class="btn btn--ghost" href="masters.html">Все мастера</a>',
-    })}
-    <div class="grid grid--masters">
-      ${masters.map((m) => masterCard(m, 0)).join('')}
+    <div class="split split--wide">
+      <div>
+        ${sectionHead({ kicker: 'Безопасность', title: sterility.title, lead: sterility.lead })}
+        <ol class="steps">
+          ${sterility.steps
+            .map((s) => `<li><h3>${esc(s.title)}</h3><p>${esc(s.text)}</p></li>`)
+            .join('\n          ')}
+        </ol>
+      </div>
+      <div>
+        <div class="card">
+          <h3>${esc(sterility.disposable.title)}</h3>
+          <ul class="checklist u-mt-sm">
+            ${sterility.disposable.items.map((i) => `<li>${icon('check')}<span>${esc(i)}</span></li>`).join('\n            ')}
+          </ul>
+          ${DEMO && sterility.demo ? `<p class="note">${esc(sterility.note)}</p>` : ''}
+        </div>
+        <div class="card u-mt-sm">
+          <h3>${icon('shield')} Спросите — покажем</h3>
+          <p>Если хочется убедиться лично, попросите мастера вскрыть пакет при вас и показать индикатор. Это обычная просьба, на неё не обижаются.</p>
+        </div>
+      </div>
     </div>
   </div>
 </section>
 
-<section class="section" id="prices">
+<section class="section" id="masters">
   <div class="wrap">
     ${sectionHead({
-      eyebrow: 'Цены',
-      title: 'Десять позиций, которые спрашивают чаще всего',
-      text: `Остальные 100 — на отдельной странице. Цены обновлены ${esc(priceUpdated)}.`,
-      action: '<a class="btn btn--ghost" href="prices.html">Все цены</a>',
+      kicker: 'Команда',
+      title: 'Мастера',
+      lead: 'К каждому можно записаться поимённо: у постоянных клиентов здесь свой мастер.',
     })}
-    <ul class="pricelist pricelist--top">
-      ${priceRows(topPrices)}
-    </ul>
-    <p class="note note--info">${icon('check')}<span>Цены на окрашивание указаны без учёта стоимости материалов. Точную сумму мастер называет после осмотра волос — до начала работы.</span></p>
+    <div class="grid grid--4">
+      ${masters.slice(0, 4).map((m) => masterCard(m, 0, { demo: DEMO })).join('\n      ')}
+    </div>
+    <p class="u-mt"><a class="link" href="masters.html">Все мастера и их работы ${icon('arrow')}</a></p>
   </div>
 </section>
 
 <section class="section section--soft" id="works">
   <div class="wrap">
     ${sectionHead({
-      eyebrow: 'Работы',
-      title: 'Что получается',
-      text: 'Работы наших мастеров. Никаких стоковых моделей — только то, что сделано здесь.',
+      kicker: 'Портфолио',
+      title: 'Работы',
+      lead: 'Снято в студии. Полная галерея — с фильтром по направлению и мастеру.',
     })}
-    <div class="gallery">
-      ${works
-        .map(
-          (w, i) => `
-      <figure class="gallery__item${i === 0 ? ' gallery__item--wide' : ''}">
-        ${photo({
-          name: `work-${i + 1}`,
-          label: w.tag,
-          alt: `${w.title} — работа салона «Пафия»`,
-          w: i === 0 ? 900 : 600,
-          h: i === 0 ? 700 : 700,
-          className: 'gallery__img',
-        })}
-        <figcaption class="gallery__cap">
-          <span class="tag">${esc(w.tag)}</span>
-          <span>${esc(w.title)}</span>
-        </figcaption>
-      </figure>`
-        )
-        .join('')}
+    <div class="gallery gallery--4">
+      ${works.filter((w) => w.kind === 'work').slice(0, 8).map((w, i) => workItem(w, i, 0)).join('\n      ')}
     </div>
-    <p class="gallery__note">Больше работ — в <a href="${site.instagram.url}" target="_blank" rel="noopener nofollow">Instagram ${esc(site.instagram.label)}</a> и на страницах мастеров.</p>
+    <p class="u-mt"><a class="link" href="works.html">Вся галерея ${icon('arrow')}</a></p>
   </div>
 </section>
 
 <section class="section" id="reviews">
   <div class="wrap">
-    ${sectionHead({ eyebrow: 'Отзывы', title: 'Рейтинг, который можно проверить' })}
-    <div class="reviews">
-      ${ratingCard(0)}
-      <div class="reviews__aside">
-        <h3>Почему у нас нет стены с цитатами</h3>
-        <p>
-          Тексты отзывов на Google и 2ГИС принадлежат их авторам и площадкам — копировать их к себе на сайт
-          нельзя. Поэтому мы показываем живой рейтинг и ссылку, а не подборку выбранных фраз пятилетней давности.
-        </p>
-        <p>
-          Если вы у нас были и готовы, чтобы ваш отзыв появился на сайте с именем — напишите нам в
-          <a href="${site.viber}" data-goal="viber">Viber</a>, мы спросим разрешение отдельно.
-        </p>
+    ${sectionHead({ kicker: 'Отзывы', title: 'Что говорят клиенты', lead: reviewsIntro.lead })}
+    ${ratingBlock()}
+    <div class="grid grid--2 u-mt">
+      ${reviews.slice(0, 4).map((r) => reviewCard(r, { demo: DEMO })).join('\n      ')}
+    </div>
+    ${DEMO ? `<p class="note">${esc(reviewsIntro.note)}</p>` : ''}
+    <p class="u-mt"><a class="link" href="reviews.html">Все отзывы ${icon('arrow')}</a></p>
+  </div>
+</section>
+
+<section class="section section--ink" id="atmosphere">
+  <div class="wrap">
+    <div class="split">
+      <div>
+        ${sectionHead({ kicker: 'Атмосфера', title: atmosphere.title, lead: atmosphere.lead })}
+        <div class="grid grid--sm">
+          ${atmosphere.items
+            .map(
+              (a) => `<div class="card card--flat"><h3>${esc(a.title)}</h3><p class="u-mt-sm text-muted">${esc(a.text)}</p></div>`
+            )
+            .join('\n          ')}
+        </div>
+      </div>
+      <div class="mosaic">
+        ${atmosphere.photoLabels
+          .map((label, i) =>
+            photo({
+              name: `atmosphere-${i + 1}`,
+              label: esc(label),
+              alt: label.replace('Фото: ', 'Студия nail.lounge: '),
+              w: 600,
+              h: 600,
+              sizes: '(min-width: 900px) 260px, 45vw',
+            })
+          )
+          .join('\n        ')}
       </div>
     </div>
   </div>
 </section>
 
-<section class="section section--about" id="about">
-  <div class="wrap about">
-    <div class="about__media">
-      ${photo({
-        name: 'about-interior',
-        label: 'Зона ожидания',
-        alt: 'Интерьер салона «Пафия»: зона ожидания',
-        w: 800,
-        h: 900,
-        className: 'about__img',
-      })}
-    </div>
-    <div class="about__text">
-      ${sectionHead({ eyebrow: 'О салоне', title: 'Пятнадцать лет по одному адресу' })}
-      ${aboutParagraphs.map((p) => `<p>${esc(p)}</p>`).join('')}
-      <ul class="facts">
-        ${aboutFacts
-          .map((f) => `<li><span class="facts__value">${esc(f.value)}</span><span class="facts__label">${esc(f.label)}</span></li>`)
-          .join('')}
-      </ul>
-    </div>
-  </div>
-</section>
-
-<section class="section section--soft" id="entrance">
-  <div class="wrap entrance">
-    <div class="entrance__text">
-      ${sectionHead({ eyebrow: 'Как найти', title: esc(entrance.title), text: esc(entrance.lead) })}
-      <ol class="steps">
-        ${entrance.steps
-          .map(
-            ([t, d], i) => `<li class="steps__item"><span class="steps__num">${i + 1}</span><div><h3>${esc(t)}</h3><p>${esc(d)}</p></div></li>`
-          )
-          .join('')}
-      </ol>
-      <a class="btn btn--ghost" href="contacts.html">Контакты и карта</a>
-    </div>
-    <div class="entrance__media">
-      ${photo({
-        name: 'entrance-facade',
-        label: 'Фасад и вход',
-        alt: 'Фасад здания на Притыцкого, 73 и вход в салон «Пафия»',
-        w: 800,
-        h: 600,
-        className: 'entrance__img',
-      })}
-      ${photo({
-        name: 'entrance-door',
-        label: 'Офис 144',
-        alt: 'Дверь салона «Пафия», офис 144',
-        w: 800,
-        h: 600,
-        className: 'entrance__img',
-      })}
-    </div>
-  </div>
-</section>
-
-<section class="section" id="techniques">
+<section class="section" id="faq">
   <div class="wrap">
-    ${sectionHead({
-      eyebrow: 'Окрашивание',
-      title: 'Техники — подробно',
-      text: 'Что это, кому подходит, сколько занимает и во сколько обойдётся. Без обещаний «блонд за один визит».',
-    })}
-    <div class="grid grid--tech">
-      ${techniques
-        .map(
-          (t) => `
-      <a class="tcard" href="services/${t.slug}.html">
-        <h3 class="tcard__title">${esc(t.title)}</h3>
-        <p class="tcard__text">${esc(t.lead)}</p>
-        <p class="tcard__meta"><span>от ${t.priceFrom} руб.</span><span>${esc(t.duration)}</span></p>
-        <span class="tcard__arrow" aria-hidden="true">${icon('arrow')}</span>
-      </a>`
-        )
-        .join('')}
+    ${sectionHead({ title: 'Частые вопросы', lead: 'Если ответа нет — напишите, администратор подскажет.' })}
+    ${faqBlock(homeFaq)}
+  </div>
+</section>
+
+<section class="section section--soft" id="contacts">
+  <div class="wrap">
+    <div class="split">
+      <div>
+        ${sectionHead({ kicker: 'Контакты', title: 'Как нас найти' })}
+        <p class="hero__meta-row">${icon('pin')}<span>${esc(site.address.city)}, ${esc(site.address.street)}<br>Ориентиры: ${esc(site.landmarks.join(', '))}</span></p>
+        <p class="hero__meta-row">${icon('chair')}<span>Метро «${esc(site.metro.name)}» — ${esc(site.metro.distance)}, ${esc(site.metro.walk)}</span></p>
+        <p class="hero__meta-row">${icon('clock')}<span>${esc(site.hoursShort)}</span></p>
+        <p class="hero__meta-row">${icon('phone')}<a href="${site.phonePrimary.href}" data-goal="phone">${esc(site.phonePrimary.label)}</a></p>
+        <div class="cta-row cta-row--start">
+          <button class="btn btn--primary" type="button" data-book>Записаться</button>
+          <a class="btn btn--ghost" href="contacts.html">Все контакты и как дойти</a>
+        </div>
+      </div>
+      ${mapBlock()}
     </div>
   </div>
 </section>
 
-<section class="section section--soft" id="faq">
-  <div class="wrap wrap--narrow">
-    ${sectionHead({ eyebrow: 'Вопросы', title: 'Что спрашивают чаще всего' })}
-    ${faqList(faq)}
-  </div>
-</section>
-
-<section class="section" id="booking">
-  <div class="wrap booking">
-    <div class="booking__text">
-      ${sectionHead({ eyebrow: 'Запись', title: 'Как записаться' })}
-      <p>Через форму — выберите услугу, мастера и удобное время. Мы подтвердим запись в течение рабочего дня.</p>
-      <p>Или позвоните: <a class="link" href="${site.phonePrimary.href}" data-goal="phone">${site.phonePrimary.label}</a>.
-         На этом же номере <a class="link" href="${site.viber}" data-goal="viber">Viber</a> — если звонить неудобно, напишите.</p>
-      <ul class="ticks">
-        <li>${icon('check')}<span>Запись к конкретному мастеру, а не «в салон»</span></li>
-        <li>${icon('check')}<span>Стоимость называем до начала работы</span></li>
-        <li>${icon('check')}<span>Если время не подошло — перезвоним и предложим варианты</span></li>
-      </ul>
-    </div>
-    <div class="booking__form card">
-      ${bookingForm({ id: 'booking-form-page' })}
-    </div>
-  </div>
-</section>
-
-${ctaBand({ depth: 0 })}
+${bookingBand(0, {
+  title: 'Записаться в nail.lounge',
+  text: `Скидка −10% на первый визит. Работаем ${site.hoursShort}, в 290 метрах от метро «Площадь Ленина».`,
+})}
 `;
 
   return layout({
-    title: 'Парикмахерская «Пафия» — Притыцкого 73, метро Кунцевщина, Минск',
+    title: 'nail.lounge — маникюр, педикюр и брови в центре Минска',
     description:
-      'Стрижки, окрашивание, маникюр и депиляция во Фрунзенском районе Минска. Работаем с 2011 года в 260 метрах от метро «Кунцевщина». Все цены на сайте, запись онлайн.',
+      'Студия маникюра, педикюра и бровей в центре Минска, 290 метров от метро «Площадь Ленина». Цены с длительностью, запись к своему мастеру, −10% на первый визит.',
     path: 'index.html',
-    depth: 0,
-    active: 'index.html',
-    bodyClass: 'page-home',
+    active: '',
     content,
-    jsonLd: [
-      {
-        '@context': 'https://schema.org',
-        '@type': 'FAQPage',
-        mainEntity: faq.map((f) => ({
-          '@type': 'Question',
-          name: f.q,
-          acceptedAnswer: { '@type': 'Answer', text: f.a },
-        })),
-      },
-      {
-        '@context': 'https://schema.org',
-        '@type': 'OfferCatalog',
-        name: 'Популярные услуги салона «Пафия»',
-        url: `${site.origin}/prices.html`,
-        itemListElement: topPrices.map((p, i) => ({
-          '@type': 'Offer',
-          position: i + 1,
-          name: p.name,
-          price: p.price,
-          priceCurrency: 'BYN',
-          description: priceLabel(p),
-          availability: 'https://schema.org/InStock',
-        })),
-      },
-    ],
+    jsonLd: [faqSchema(homeFaq)],
   });
 }

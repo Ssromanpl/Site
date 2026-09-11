@@ -1,19 +1,22 @@
-// Прайс-лист. Цены в белорусских рублях, правятся в src/data/prices.json.
+// Цены в белорусских рублях, правятся в src/data/prices.json.
 //
-// ⚠️ ДЕМО-ДАННЫЕ. Подтверждённые владельцем ориентиры: женская стрижка от 45,
-// мужская от 40, аппаратный маникюр 30, классический + покрытие 32,
-// шугаринг от 10, брови от 7,50, Ki-Power от 25. Остальное — правдоподобная
-// заглушка, заменить на реальные цены до запуска (см. README).
+// ⚠️ ЧЕРНОВИК. Цифры собраны по рынку Минска на сентябрь 2026 года
+// и ждут подтверждения владельцев студии. Раздел на сайте называется
+// «Цены» — другого названия не используем, это проверяет npm run check.
 import { loadJson } from './load.mjs';
 
 const data = loadJson('prices');
 
 export const priceUpdated = data.priceUpdated;
+export const priceNote = data.priceNote;
 export const priceCategories = data.priceCategories;
-
-// Топ-10 для главной (по образцу M5: цены видны сразу, без формы записи).
 export const topPrices = data.topPrices;
+export const included = data.included;
+export const extraTitle = data.extraTitle;
+export const extraLead = data.extraLead;
+export const sumParts = data.sumParts;
 
+/** «от 55 руб.», «55 руб. за ноготь», «бесплатно» — одним правилом. */
 export function priceLabel(item) {
   if (item.free) return 'бесплатно';
   const value = `${item.price} руб.`;
@@ -21,5 +24,9 @@ export function priceLabel(item) {
   return item.from ? `от ${withUnit}` : withUnit;
 }
 
-export const allServiceNames = priceCategories
-  .flatMap((c) => c.groups.flatMap((g) => g.items.map((i) => i.name)));
+export const categoryById = (id) => priceCategories.find((c) => c.id === id) || null;
+
+/** Все названия услуг — для выпадающего списка в форме записи. */
+export const allServiceNames = priceCategories.flatMap((c) =>
+  c.groups.flatMap((g) => g.items.map((i) => i.name))
+);

@@ -1,26 +1,19 @@
-// Тексты и блоки страниц: услуги на главной, галерея, FAQ, «Вход в салон»,
-// «О салоне». Правятся в src/data/content.json.
-//
-// ⚠️ ДЕМО: ответы про парковку, оплату картой и свадебные причёски, а также
-// весь блок «Вход в салон» придуманы — уточнить у владельца. Для Притыцкого,
-// 73 это критично: в здании три салона.
+// Тексты блоков: первый экран, стерильность, атмосфера, работы, отзывы,
+// сертификаты, вопросы-ответы. Правится в src/data/content.json.
 import { loadJson } from './load.mjs';
 
 const data = loadJson('content');
 
-// Пять крупных блоков услуг для главной. Каждый ведёт в нужный раздел с ценами.
-export const serviceBlocks = data.serviceBlocks;
-
-// Галерея работ. Подписи есть, фотографий пока нет — заглушки генерируются
-// сборщиком (см. README, раздел «Что нужно снять»).
+export const hero = data.hero;
+export const serviceCards = data.serviceCards;
+export const sterility = data.sterility;
+export const atmosphere = data.atmosphere;
+export const worksIntro = data.worksIntro;
 export const works = data.works;
+export const reviewsIntro = data.reviewsIntro;
+export const reviews = data.reviews;
+export const gift = data.gift;
+export const contactsExtra = data.contactsExtra;
+export const homeFaq = data.homeFaq;
 
-// FAQ составлен по реальным болям из отзывов — каждый вопрос закрывает
-// конкретную жалобу.
-export const faq = data.faq;
-
-// Как найти вход — приём от МОНЕ.
-export const entrance = data.entrance;
-
-export const aboutParagraphs = data.aboutParagraphs;
-export const aboutFacts = data.aboutFacts;
+export const worksFor = (direction) => works.filter((w) => w.direction === direction);
