@@ -16,7 +16,8 @@ const walk = (d, out = []) => {
   return out;
 };
 
-const htmls = walk(ROOT).filter((f) => f.endsWith('.html'));
+// .preview.html — вёрстка документов для печати, а не страницы сайта.
+const htmls = walk(ROOT).filter((f) => f.endsWith('.html') && !f.endsWith('.preview.html'));
 let errors = 0;
 let warnings = 0;
 const err = (m) => { console.log('  ✗ ' + m); errors++; };

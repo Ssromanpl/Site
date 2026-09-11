@@ -11,6 +11,7 @@
     "edit": "node tools/editor.mjs",
     "phone": "node tools/serve-phone.mjs",
     "photos": "PHOTOS=1 node build.mjs",
+    "pdf": "node tools/build-pdf.mjs",
     "serve": "node build.mjs && python3 -m http.server 8080"
   },
   "engines": {
