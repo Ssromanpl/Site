@@ -2,7 +2,7 @@
 // «цена по запросу»: у каждой позиции стоимость и длительность, а рядом
 // объяснение, что входит и что считается отдельно.
 import { layout, esc, crumbsHtml } from '../lib/layout.mjs';
-import { sectionHead, priceCategory, firstVisitStrip, bookingBand } from '../lib/components.mjs';
+import { sectionHead, priceCategory, firstVisitSection, bookingBand } from '../lib/components.mjs';
 import { icon } from '../lib/icons.mjs';
 import { site } from '../data/site.mjs';
 import {
@@ -95,13 +95,11 @@ export function pricesPage() {
   </div>
 </section>
 
-<section class="section section--tight">
-  <div class="wrap">${firstVisitStrip()}</div>
-</section>
+${firstVisitSection()}
 
 ${bookingBand(0, {
   title: 'Записаться',
-  text: `Скажите при записи, что вы у нас впервые, — посчитаем со скидкой. Работаем ${site.hoursShort}.`,
+  text: `Назовите услугу — администратор посчитает итог до визита. Работаем ${site.hoursShort}.`,
 })}
 `;
 

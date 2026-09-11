@@ -13,30 +13,87 @@
       "postalCode": "220030",
       "country": "BY"
     },
-    "metro": { "name": "Площадь Ленина", "distance": "290 метров", "walk": "4 минуты пешком" },
-    "landmarks": ["ТЦ «Столица»", "гостиница «Минск»"],
-    "geo": { "lat": "53.8977", "lon": "27.5546", "demo": true },
-    "hours": [{ "days": "Ежедневно", "time": "09:00–21:00" }],
-    "hoursShort": "ежедневно 09:00–21:00",
-    "phonePrimary": { "label": "+375 25 755-07-97", "href": "tel:+375257550797", "raw": "+375257550797" },
-    "channels": [
-      { "id": "telegram", "title": "Telegram", "note": "ответим в течение дня", "href": "https://t.me/+375257550797", "demo": true },
-      { "id": "viber", "title": "Viber", "note": "на этом же номере", "href": "viber://chat?number=%2B375257550797", "demo": false },
-      { "id": "whatsapp", "title": "WhatsApp", "note": "если удобнее там", "href": "https://wa.me/375257550797", "demo": true },
-      { "id": "instagram", "title": "Instagram", "note": "живая лента работ", "href": "https://instagram.com/nail.lounge_minsk", "demo": false }
+    "metro": {
+      "name": "Площадь Ленина",
+      "distance": "290 метров",
+      "walk": "4 минуты пешком"
+    },
+    "landmarks": [
+      "ТЦ «Столица»",
+      "гостиница «Минск»"
     ],
-    "instagram": { "label": "@nail.lounge_minsk", "url": "https://instagram.com/nail.lounge_minsk" },
+    "geo": {
+      "lat": "53.8977",
+      "lon": "27.5546",
+      "demo": true
+    },
+    "hours": [
+      {
+        "days": "Ежедневно",
+        "time": "09:00–21:00"
+      }
+    ],
+    "hoursShort": "ежедневно 09:00–21:00",
+    "phonePrimary": {
+      "label": "+375 25 755-07-97",
+      "href": "tel:+375257550797",
+      "raw": "+375257550797"
+    },
+    "channels": [
+      {
+        "id": "telegram",
+        "title": "Telegram",
+        "note": "ответим в течение дня",
+        "href": "https://t.me/+375257550797",
+        "demo": true
+      },
+      {
+        "id": "viber",
+        "title": "Viber",
+        "note": "на этом же номере",
+        "href": "viber://chat?number=%2B375257550797",
+        "demo": false
+      },
+      {
+        "id": "whatsapp",
+        "title": "WhatsApp",
+        "note": "если удобнее там",
+        "href": "https://wa.me/375257550797",
+        "demo": true
+      },
+      {
+        "id": "instagram",
+        "title": "Instagram",
+        "note": "живая лента работ",
+        "href": "https://instagram.com/nail.lounge_minsk",
+        "demo": false
+      }
+    ],
+    "instagram": {
+      "label": "@nail.lounge_minsk",
+      "url": "https://instagram.com/nail.lounge_minsk"
+    },
     "rating": {
       "value": "4.8",
       "count": 59,
       "sources": [
-        { "name": "Google Maps", "value": "4.8", "count": 35 },
-        { "name": "firmi.by", "value": "4.8", "count": 24 }
+        {
+          "name": "Google Maps",
+          "value": "4.8",
+          "count": 35
+        },
+        {
+          "name": "firmi.by",
+          "value": "4.8",
+          "count": 24
+        }
       ]
     },
     "firstVisit": {
+      "enabled": false,
       "badge": "−10% на первый визит",
-      "text": "Скидка действует на любую услугу при первом посещении. Скажите об этом при записи — администратор сразу посчитает итог со скидкой."
+      "text": "Скидка действует на любую услугу при первом посещении. Скажите об этом при записи — администратор сразу посчитает итог со скидкой.",
+      "note": "Выключено: скидку не удалось подтвердить ни в одном открытом источнике. Включите галочку, когда владельцы подтвердят, — плашка и упоминания вернутся сами."
     },
     "booking": {
       "endpoint": "",
@@ -44,7 +101,10 @@
       "systemName": "",
       "systemUrl": ""
     },
-    "analytics": { "metrikaId": "", "gaId": "" },
+    "analytics": {
+      "metrikaId": "",
+      "gaId": ""
+    },
     "legal": {
       "entity": "‹наименование юрлица или ИП — уточнить›",
       "unp": "‹УНП — уточнить›",
@@ -57,13 +117,37 @@
     "priceUpdatedNote": "Цены предварительные: собраны по рынку Минска и ждут подтверждения владельцев."
   },
   "nav": [
-    { "title": "Маникюр", "href": "manicure.html" },
-    { "title": "Педикюр", "href": "pedicure.html" },
-    { "title": "Брови", "href": "brows.html" },
-    { "title": "Цены", "href": "prices.html" },
-    { "title": "Мастера", "href": "masters.html" },
-    { "title": "Работы", "href": "works.html" },
-    { "title": "Отзывы", "href": "reviews.html" },
-    { "title": "Контакты", "href": "contacts.html" }
+    {
+      "title": "Маникюр",
+      "href": "manicure.html"
+    },
+    {
+      "title": "Педикюр",
+      "href": "pedicure.html"
+    },
+    {
+      "title": "Брови",
+      "href": "brows.html"
+    },
+    {
+      "title": "Цены",
+      "href": "prices.html"
+    },
+    {
+      "title": "Мастера",
+      "href": "masters.html"
+    },
+    {
+      "title": "Работы",
+      "href": "works.html"
+    },
+    {
+      "title": "Отзывы",
+      "href": "reviews.html"
+    },
+    {
+      "title": "Контакты",
+      "href": "contacts.html"
+    }
   ]
 }

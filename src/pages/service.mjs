@@ -4,7 +4,7 @@
 import { layout, esc, url, crumbsHtml } from '../lib/layout.mjs';
 import {
   sectionHead, stepsList, faqBlock, faqSchema, priceGroup,
-  workItem, beforeAfter, masterCard, bookingBand, firstVisitStrip,
+  workItem, beforeAfter, masterCard, bookingBand, firstVisitSection,
 } from '../lib/components.mjs';
 import { icon } from '../lib/icons.mjs';
 import { photo } from '../lib/photo.mjs';
@@ -84,9 +84,7 @@ export function servicePage(service) {
   </div>
 </section>
 
-<section class="section section--tight">
-  <div class="wrap">${firstVisitStrip()}</div>
-</section>
+${firstVisitSection()}
 
 <section class="section" id="how">
   <div class="wrap">
@@ -176,7 +174,7 @@ ${
 
 ${bookingBand(0, {
   title: `Записаться на ${esc(service.title.toLowerCase())}`,
-  text: `Работаем ${site.hoursShort}. Скидка −10% на первый визит, запись к конкретному мастеру — по имени.`,
+  text: `Работаем ${site.hoursShort}. Можно записаться к конкретному мастеру — по имени.`,
 })}
 `;
 

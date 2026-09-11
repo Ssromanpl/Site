@@ -26,6 +26,16 @@ const warn = (m) => { console.log('  ! ' + m); warnings++; };
 // не просочилось обратно ни в тексты, ни в меню.
 const BANNED = [['прайс', 'вместо него на сайте только «цены»']];
 
+// Скидку на первый визит подтвердить не удалось, поэтому она выключена
+// в данных. Пока выключатель стоит в «нет», упоминаний скидки на сайте
+// быть не должно: обещание, которого студия не давала, дороже опечатки.
+const site = JSON.parse(readFileSync(join(ROOT, 'src', 'data', 'site.json'), 'utf8')).site;
+if (!site.firstVisit.enabled) {
+  for (const word of ['скидк', '−10', 'первый визит', 'первом посещении']) {
+    BANNED.push([word, 'скидка на первый визит выключена в данных']);
+  }
+}
+
 for (const file of htmls) {
   const rel = file.replace(ROOT + '/', '');
   const html = readFileSync(file, 'utf8');

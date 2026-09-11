@@ -15,12 +15,31 @@ export const sectionHead = ({ kicker, title, lead, center = false, id = '' }) =>
   ${lead ? `<p class="section__lead">${esc(lead)}</p>` : ''}
 </div>`;
 
-/** Плашка скидки на первый визит — она же есть у студии в реальности. */
-export const firstVisitStrip = () => `
+/**
+ * Плашка скидки на первый визит. Включается галочкой в данных:
+ * «Студия и контакты» → «Скидка на первый визит». Пока выключено, скидки
+ * нет нигде на сайте — ни плашки, ни упоминаний в текстах. Так сделано
+ * намеренно: обещание скидки, которой нет, клиент запомнит надолго.
+ */
+export const firstVisitOn = () => site.firstVisit.enabled === true;
+
+export const firstVisitStrip = () =>
+  firstVisitOn()
+    ? `
 <div class="strip">
   <span class="strip__badge">${icon('sparkle')}${esc(site.firstVisit.badge)}</span>
   <span class="strip__text">${esc(site.firstVisit.text)}</span>
-</div>`;
+</div>`
+    : '';
+
+/** Секция с плашкой целиком: выключили скидку — пустой секции не остаётся. */
+export const firstVisitSection = () =>
+  firstVisitOn()
+    ? `
+<section class="section section--tight">
+  <div class="wrap">${firstVisitStrip()}</div>
+</section>`
+    : '';
 
 export const serviceCard = (service, card, depth = 0) => `
 <a class="svc" href="${url(service.slug + '.html', depth)}">
@@ -201,7 +220,11 @@ export const bookingBand = (depth = 0, { title, text, service = '', master = '' 
 <section class="section section--soft">
   <div class="wrap">
     <div class="card">
-      ${sectionHead({ title: title || 'Записаться', lead: text || `Администратор подберёт время: ${site.hoursShort}. Первый визит — со скидкой ${site.firstVisit.badge.replace('на первый визит', '').trim()}.`, center: true })}
+      ${sectionHead({
+        title: title || 'Записаться',
+        lead: text || `Администратор подберёт время: ${site.hoursShort}.`,
+        center: true,
+      })}
       <div class="cta-row">
         <button class="btn btn--primary btn--lg" type="button" data-book${service ? ` data-service="${esc(service)}"` : ''}${master ? ` data-master="${esc(master)}"` : ''}>Записаться</button>
         <a class="btn btn--ghost btn--lg" href="${site.phonePrimary.href}" data-goal="phone">${icon('phone')}${esc(site.phonePrimary.label)}</a>

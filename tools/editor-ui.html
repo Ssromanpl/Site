@@ -166,8 +166,11 @@ S.site = [
       of:[ { k:'name', label:'Площадка' }, { k:'value', label:'Оценка' }, { k:'count', label:'Отзывов', type:'num' } ] },
   ]},
   { k:'site.firstVisit', type:'group', label:'Скидка на первый визит', of:[
+    { k:'enabled', label:'Скидка действует — показывать её на сайте', type:'check' },
     { k:'badge', label:'Надпись на плашке' },
     { k:'text', label:'Пояснение', type:'area' },
+    { k:'note', label:'Заметка для себя', type:'area',
+      hint:'— на сайт не попадает' },
   ]},
   { k:'site.booking', type:'group', label:'Приём заявок', of:[
     { k:'endpoint', label:'Адрес обработчика', hint:'— пусто: заявка уходит готовым сообщением в мессенджер' },

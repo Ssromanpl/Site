@@ -3,7 +3,7 @@
 // отзывы, атмосфера, карта. Всё ведёт к одной кнопке — «Записаться».
 import { layout, esc, url, DEMO } from '../lib/layout.mjs';
 import {
-  sectionHead, firstVisitStrip, serviceCard, masterCard, workItem,
+  sectionHead, firstVisitSection, serviceCard, masterCard, workItem,
   reviewCard, ratingBlock, faqBlock, faqSchema, bookingBand,
 } from '../lib/components.mjs';
 import { icon } from '../lib/icons.mjs';
@@ -58,11 +58,7 @@ export function homePage() {
   </div>
 </section>
 
-<section class="section section--tight">
-  <div class="wrap">
-    ${firstVisitStrip()}
-  </div>
-</section>
+${firstVisitSection()}
 
 <section class="section" id="services">
   <div class="wrap">
@@ -204,14 +200,14 @@ export function homePage() {
 
 ${bookingBand(0, {
   title: 'Записаться в nail.lounge',
-  text: `Скидка −10% на первый визит. Работаем ${site.hoursShort}, в 290 метрах от метро «Площадь Ленина».`,
+  text: `Работаем ${site.hoursShort}, в 290 метрах от метро «Площадь Ленина». Администратор подберёт время.`,
 })}
 `;
 
   return layout({
     title: 'nail.lounge — маникюр, педикюр и брови в центре Минска',
     description:
-      'Студия маникюра, педикюра и бровей в центре Минска, 290 метров от метро «Площадь Ленина». Цены с длительностью, запись к своему мастеру, −10% на первый визит.',
+      'Студия маникюра, педикюра и бровей в центре Минска, 290 метров от метро «Площадь Ленина». Цены с длительностью, запись к своему мастеру, ежедневно с 09:00 до 21:00.',
     path: 'index.html',
     active: '',
     content,

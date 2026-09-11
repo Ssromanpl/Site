@@ -435,7 +435,10 @@ button { font: inherit; }
 .master__name { font-family: var(--font-display); font-size: 21px; font-weight: 600; }
 .master__role { margin: 3px 0 10px; color: var(--accent-ink); font-size: 14px; font-weight: 700; }
 .master__text { color: var(--ink-2); font-size: 15px; }
-.master__actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line); }
+/* margin-top: auto прижимает кнопки к низу: тексты у мастеров разной длины,
+   а ряд кнопок должен идти по одной линии через всю строку карточек. */
+.master__actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto; padding-top: 14px; border-top: 1px solid var(--line); }
+.master__text { margin-bottom: 16px; }
 .master__actions .btn { flex: 1 1 140px; }
 
 .profile { display: grid; gap: 22px; }
