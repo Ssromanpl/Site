@@ -15,8 +15,8 @@
     },
     "metro": {
       "name": "Площадь Ленина",
-      "distance": "290 метров",
-      "walk": "4 минуты пешком"
+      "distance": "рядом",
+      "walk": "несколько минут пешком"
     },
     "landmarks": [
       "ТЦ «Столица»",
@@ -74,6 +74,7 @@
       "url": "https://instagram.com/nail.lounge_minsk"
     },
     "rating": {
+      "enabled": false,
       "value": "4.8",
       "count": 59,
       "sources": [
@@ -87,7 +88,8 @@
           "value": "4.8",
           "count": 24
         }
-      ]
+      ],
+      "note": "Выключено: цифры взяты из досье и независимо не подтверждены. Включайте, когда сверите оценку и число отзывов на площадках."
     },
     "firstVisit": {
       "enabled": false,

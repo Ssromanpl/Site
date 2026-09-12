@@ -1,8 +1,8 @@
-// Отзывы. Собираем то, что уже написано на Google и firmi.by, с указанием
-// источника, и отправляем новых авторов на Google — заодно растёт карточка
-// студии на картах.
+// Отзывы. Своих цитат на сайте нет: чужие отзывы нельзя пересказывать
+// своими словами, а придуманные — тем более. Пока владельцы не отберут
+// настоящие, страница честно отправляет читать их на площадки.
 import { layout, esc, crumbsHtml, DEMO } from '../lib/layout.mjs';
-import { sectionHead, reviewCard, ratingBlock, bookingBand } from '../lib/components.mjs';
+import { sectionHead, reviewCard, ratingBlock, reviewSources, bookingBand } from '../lib/components.mjs';
 import { icon } from '../lib/icons.mjs';
 import { site } from '../data/site.mjs';
 import { reviews, reviewsIntro } from '../data/content.mjs';
@@ -19,17 +19,21 @@ export function reviewsPage() {
 <section class="section section--tight">
   <div class="wrap">
     <h1>Отзывы о студии nail.lounge</h1>
-    <p class="section__lead">${esc(reviewsIntro.lead)} Мы не удаляем неудобные отзывы: если что-то пошло не так, честнее это исправить.</p>
-    <div class="u-mt">${ratingBlock()}</div>
+    <p class="section__lead">${esc(reviewsIntro.lead)}</p>
+    ${ratingBlock() ? `<div class="u-mt">${ratingBlock()}</div>` : ''}
     ${DEMO ? `<p class="note">${esc(reviewsIntro.note)}</p>` : ''}
   </div>
 </section>
 
 <section class="section section--tight">
   <div class="wrap">
-    <div class="grid grid--2">
+    ${
+      reviews.length
+        ? `<div class="grid grid--2">
       ${reviews.map((r) => reviewCard(r, { demo: DEMO })).join('\n      ')}
-    </div>
+    </div>`
+        : reviewSources(reviewsIntro)
+    }
   </div>
 </section>
 
@@ -41,14 +45,14 @@ export function reviewsPage() {
         <a class="btn btn--primary btn--lg" href="${esc(reviewsIntro.cta.href)}" target="_blank" rel="noopener" data-goal="review">${icon('star')}${esc(reviewsIntro.cta.button)}</a>
         <a class="btn btn--ghost btn--lg" href="${esc(site.instagram.url)}" target="_blank" rel="noopener nofollow">${icon('instagram')}Написать в Instagram</a>
       </div>
-      <p class="summary-note">${icon('chat')} Если визит не понравился, напишите сначала нам — администратор ответит и разберётся: ${esc(site.phonePrimary.label)}.</p>
+      <p class="summary-note">${icon('chat')} Если визит не понравился, напишите сначала нам — администратор ответит: ${esc(site.phonePrimary.label)}.</p>
     </div>
   </div>
 </section>
 
 ${bookingBand(0, {
   title: 'Записаться',
-  text: `Средняя оценка ${site.rating.value} на двух площадках. Приходите — будет ${site.rating.count + 1}-й отзыв.`,
+  text: `Работаем ${site.hoursShort}. Администратор подберёт время.`,
 })}
 `;
 

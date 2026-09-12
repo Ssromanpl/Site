@@ -31,6 +31,12 @@ const BANNED = [['прайс', 'вместо него на сайте тольк
 // в данных. Пока выключатель стоит в «нет», упоминаний скидки на сайте
 // быть не должно: обещание, которого студия не давала, дороже опечатки.
 const site = JSON.parse(readFileSync(join(ROOT, 'src', 'data', 'site.json'), 'utf8')).site;
+if (!site.rating.enabled) {
+  // Оценка и число отзывов не подтверждены: ни на странице, ни в разметке.
+  BANNED.push(['aggregateRating', 'рейтинг выключен в данных']);
+  BANNED.push(['ratingValue', 'рейтинг выключен в данных']);
+}
+
 if (!site.firstVisit.enabled) {
   for (const word of ['скидк', '−10', 'первый визит', 'первом посещении']) {
     BANNED.push([word, 'скидка на первый визит выключена в данных']);

@@ -64,10 +64,14 @@ export function contactsPage() {
         ${sectionHead({ kicker: 'Дорога', title: contactsExtra.route.title })}
         ${stepsList(contactsExtra.route.steps)}
         ${DEMO && contactsExtra.route.demo ? `<p class="note">${esc(contactsExtra.route.note)}</p>` : ''}
-        <div class="card u-mt">
+        ${
+          contactsExtra.parking
+            ? `<div class="card u-mt">
           <h3>${icon('pin')} На машине</h3>
           <p class="u-mt-sm text-muted">${esc(contactsExtra.parking)}</p>
-        </div>
+        </div>`
+            : ''
+        }
       </div>
       <div>
         ${photo({
@@ -95,7 +99,7 @@ export function contactsPage() {
   return layout({
     title: 'Контакты — nail.lounge, Независимости 11/2, Минск',
     description:
-      'Адрес студии nail.lounge: Минск, проспект Независимости, 11/2, 290 метров от метро «Площадь Ленина». Телефон, мессенджеры, режим работы и дорога от метро.',
+      'Адрес студии nail.lounge: Минск, проспект Независимости, 11/2, рядом с метро «Площадь Ленина» и ТЦ «Столица». Телефон, мессенджеры, режим работы и дорога от метро.',
     path: 'contacts.html',
     active: 'contacts.html',
     crumbs,

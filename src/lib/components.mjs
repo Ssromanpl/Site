@@ -170,7 +170,16 @@ export const reviewCard = (review, { demo = false } = {}) => `
   </p>
 </article>`;
 
-export const ratingBlock = () => `
+/**
+ * Рейтинг показываем только когда цифры подтверждены: «Студия и контакты»
+ * → «Рейтинг» → галочка. Оценка, взятая из непроверенного источника, —
+ * это обещание, которое студия не давала.
+ */
+export const ratingOn = () => site.rating.enabled === true;
+
+export const ratingBlock = () =>
+  ratingOn()
+    ? `
 <div class="rating">
   <span class="rating__value">${esc(site.rating.value)}<span>из 5</span></span>
   ${stars(5)}
@@ -179,6 +188,24 @@ export const ratingBlock = () => `
       .map((s) => `<span>${esc(s.name)}: ${esc(s.value)} — ${s.count} отзывов</span>`)
       .join('\n    ')}
   </span>
+</div>`
+    : '';
+
+/** Куда идти за настоящими отзывами, пока своих цитат на сайте нет. */
+export const reviewSources = (intro) => `
+<div class="card">
+  <h2>${esc(intro.empty.title)}</h2>
+  <p class="u-mt-sm text-muted">${esc(intro.empty.text)}</p>
+  <div class="channels u-mt">
+    ${intro.sources
+      .map(
+        (s) => `<a class="channel" href="${esc(s.href)}" target="_blank" rel="noopener nofollow">
+      ${icon('star')}
+      <span class="channel__body"><span>${esc(s.name)}</span><span class="channel__note">откроется в новой вкладке</span></span>
+    </a>`
+      )
+      .join('\n    ')}
+  </div>
 </div>`;
 
 export const faqBlock = (items) => `

@@ -46,16 +46,12 @@ export function giftPage() {
 
 <section class="section">
   <div class="wrap">
-    ${sectionHead({ title: 'Номиналы', lead: 'Сертификат на сумму — так получатель сам выберет услугу и мастера.' })}
-    <div class="grid grid--4">
-      ${gift.nominals
-        .map(
-          (n) => `<div class="card">
-        <span class="fact__value">${n.custom ? 'Любая сумма' : n.value + ' руб.'}</span>
-        <p class="u-mt-sm text-muted">${esc(n.text)}</p>
-      </div>`
-        )
-        .join('\n      ')}
+    <div class="card">
+      ${sectionHead({ title: 'На какую сумму', lead: gift.nominalsNote })}
+      <div class="cta-row cta-row--start">
+        <button class="btn btn--primary" type="button" data-book>Спросить у администратора</button>
+        <a class="btn btn--ghost" href="${site.phonePrimary.href}" data-goal="phone">${icon('phone')}${esc(site.phonePrimary.label)}</a>
+      </div>
     </div>
   </div>
 </section>
@@ -67,14 +63,23 @@ export function giftPage() {
         ${sectionHead({ title: gift.how.title })}
         ${stepsList(gift.how.steps)}
       </div>
-      <div class="card">
+      ${
+        gift.terms.length
+          ? `<div class="card">
         <h2>Условия</h2>
         <ul class="checklist u-mt-sm">
           ${gift.terms.map((t) => `<li>${icon('check')}<span>${esc(t)}</span></li>`).join('\n          ')}
         </ul>
-        ${DEMO && gift.demo ? '<p class="note">Черновик: номиналы и срок действия нужно согласовать с владельцами.</p>' : ''}
         <p class="u-mt-sm"><a class="link" href="legal/offer.html">Условия из публичной оферты ${icon('arrow')}</a></p>
-      </div>
+      </div>`
+          : `<div class="card">
+        <h2>Про условия</h2>
+        <p class="u-mt-sm text-muted">Срок действия, доступные суммы и порядок оплаты студия определяет сама.
+          Мы не публикуем их до подтверждения, чтобы не пообещать за неё лишнего — спросите администратора,
+          он ответит в тот же день.</p>
+        <p class="u-mt-sm"><a class="link" href="legal/offer.html">Публичная оферта ${icon('arrow')}</a></p>
+      </div>`
+      }
     </div>
   </div>
 </section>
@@ -88,7 +93,7 @@ ${bookingBand(0, {
   return layout({
     title: 'Подарочные сертификаты студии nail.lounge в Минске',
     description:
-      'Подарочный сертификат студии nail.lounge: номиналы 50, 80 и 130 рублей или любая сумма, срок действия 6 месяцев, оплата в студии. Маникюр, педикюр и брови в подарок.',
+      'Подарочный сертификат студии nail.lounge в центре Минска: маникюр, педикюр и брови в подарок. Как купить, на какую сумму и где забрать — подскажет администратор студии.',
     path: 'gift.html',
     content,
   });

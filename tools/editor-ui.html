@@ -160,6 +160,7 @@ S.site = [
     { k:'url', label:'Ссылка' },
   ]},
   { k:'site.rating', type:'group', label:'Рейтинг', of:[
+    { k:'enabled', label:'Цифры сверены — показывать рейтинг на сайте', type:'check' },
     { k:'value', label:'Средняя оценка' },
     { k:'count', label:'Всего отзывов', type:'num' },
     { k:'sources', label:'Площадки', type:'list', titleKey:'name', add:'Добавить площадку',
@@ -355,6 +356,7 @@ S.content = [
       { k:'items', label:'Пункты', type:'list', titleKey:'title', add:'Добавить пункт',
         of:[ { k:'title', label:'Заголовок' }, { k:'text', label:'Текст', type:'area' } ] },
       { k:'photoLabels', label:'Подписи к фотографиям', type:'strings', add:'Добавить фотографию' },
+      { k:'note', label:'Заметка для себя', type:'area', hint:'— на сайт не попадает' },
     ]},
   ]},
   { k:'', type:'group', label:'Работы', of:[
@@ -397,6 +399,8 @@ S.content = [
     { k:'gift', type:'sub', label:'Страница сертификатов', of:[
       { k:'title', label:'Заголовок' },
       { k:'lead', label:'Вступление', type:'area' },
+      { k:'nominalsNote', label:'Текст вместо номиналов', type:'area',
+        hint:'— показывается, пока список номиналов пуст' },
       { k:'nominals', label:'Номиналы', type:'list', titleKey:'value', add:'Добавить номинал',
         of:[ { k:'value', label:'Сумма, руб.', type:'num' }, { k:'text', label:'На что хватит' },
              { k:'custom', label:'Любая сумма', type:'check' } ] },

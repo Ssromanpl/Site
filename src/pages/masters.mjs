@@ -49,7 +49,7 @@ export function mastersIndexPage() {
         ${DEMO && founders.demo ? '<p class="note">Черновик: историю студии нужно подтвердить у владельцев.</p>' : ''}
       </div>
       <div class="card">
-        <span class="kicker">Администратор</span>
+        <span class="kicker">Запись</span>
         <h2>${esc(admin.name)}</h2>
         <p class="master__role">${esc(admin.role)}</p>
         <p class="text-muted">${esc(admin.text)}</p>
@@ -116,7 +116,7 @@ export function masterPage(master) {
           })}
           <div class="profile__facts">
             <p class="profile__fact">${icon('sparkle')}<span>${esc(master.role)}</span></p>
-            <p class="profile__fact">${icon('clock')}<span>${esc(master.experience)}</span></p>
+            ${master.experience ? `<p class="profile__fact">${icon('clock')}<span>${esc(master.experience)}</span></p>` : ''}
             <p class="profile__fact">${icon('hand')}<span>${esc(master.directions.map(directionTitle).join(', '))}</span></p>
           </div>
           <div class="profile__cta">
@@ -130,10 +130,14 @@ export function masterPage(master) {
         <p class="section__lead">${esc(master.lead)}</p>
         ${DEMO && master.demo ? '<p class="note">Черновик: текст написан нами по отзывам, мастер его ещё не подтвердил.</p>' : ''}
 
-        <div class="card u-mt">
+        ${
+          master.approach.length
+            ? `<div class="card u-mt">
           <h2>Как работает</h2>
           ${master.approach.map((p) => `<p class="u-mt-sm text-muted">${esc(p)}</p>`).join('\n          ')}
-        </div>
+        </div>`
+            : ''
+        }
 
         <div class="split u-mt">
           <div class="card">
@@ -141,14 +145,25 @@ export function masterPage(master) {
             <ul class="checklist u-mt-sm">
               ${master.specialties.map((s) => `<li>${icon('check')}<span>${esc(s)}</span></li>`).join('\n              ')}
             </ul>
+            <p class="u-mt-sm"><a class="link" href="${u('prices.html')}">Цены на услуги ${icon('arrow')}</a></p>
           </div>
-          <div class="card">
+          ${
+            master.education.length
+              ? `<div class="card">
             <h2>Обучение</h2>
             <ul class="checklist u-mt-sm">
               ${master.education.map((s) => `<li>${icon('sparkle')}<span>${esc(s)}</span></li>`).join('\n              ')}
             </ul>
-            <p class="u-mt-sm"><a class="link" href="${u('prices.html')}">Цены на услуги ${icon('arrow')}</a></p>
-          </div>
+          </div>`
+              : `<div class="card">
+            <h2>Записаться к мастеру</h2>
+            <p class="u-mt-sm text-muted">Имя подставится в заявку, и администратор посмотрит расписание
+              именно этого мастера.</p>
+            <div class="cta-row cta-row--start">
+              <button class="btn btn--primary" type="button" data-book data-master="${esc(master.name)}">Записаться к ${esc(master.dative)}</button>
+            </div>
+          </div>`
+          }
         </div>
 
         <div class="u-mt-lg">

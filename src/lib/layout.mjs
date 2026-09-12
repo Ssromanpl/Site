@@ -240,7 +240,7 @@ function footer(depth) {
         Юридический адрес: ${esc(l.legalAddress)}.
         Режим работы: ${esc(site.hoursShort)}.
       </p>
-      <p>Информация на сайте не является публичной офертой. Итоговую стоимость мастер называет после осмотра — до начала работы.</p>
+      <p>Информация на сайте не является публичной офертой. Итоговую стоимость услуги спрашивайте у мастера до начала работы.</p>
       <div class="footer__bottom">
         <span>© ${new Date().getFullYear()} nail.lounge, ${esc(site.address.city)}</span>
         <nav class="footer__policies" aria-label="Правовые документы">
@@ -296,7 +296,7 @@ function jsonLdSalon() {
     image: `${site.origin}/assets/img/og.png`,
     logo: `${site.origin}/assets/img/logo.svg`,
     description:
-      'Студия маникюра, педикюра и оформления бровей в центре Минска, в 290 метрах от метро «Площадь Ленина». Работает с 2021 года, ежедневно с 09:00 до 21:00.',
+      'Студия маникюра, педикюра и оформления бровей в центре Минска, рядом с метро «Площадь Ленина». Работает с 2021 года, ежедневно с 09:00 до 21:00.',
     foundingDate: '2021',
     address: {
       '@type': 'PostalAddress',
@@ -317,19 +317,22 @@ function jsonLdSalon() {
     ],
     priceRange: '$$',
     currenciesAccepted: 'BYN',
-    paymentAccepted: 'Наличные, банковские карты',
     publicAccess: true,
     sameAs: [site.instagram.url],
-    aggregateRating: {
-      '@type': 'AggregateRating',
-      ratingValue: site.rating.value,
-      reviewCount: String(site.rating.count),
-      bestRating: '5',
-    },
-    areaServed: [
-      { '@type': 'Place', name: 'Центр Минска' },
-      { '@type': 'Place', name: 'Первомайский район, Минск' },
-    ],
+    // Разметку отзывов отдаём поисковикам только вместе с настоящими
+    // отзывами на странице: за оценку, которой нет на сайте, Google
+    // снимает звёзды со всей карточки.
+    ...(site.rating.enabled
+      ? {
+          aggregateRating: {
+            '@type': 'AggregateRating',
+            ratingValue: site.rating.value,
+            reviewCount: String(site.rating.count),
+            bestRating: '5',
+          },
+        }
+      : {}),
+    areaServed: [{ '@type': 'Place', name: 'Центр Минска' }],
     hasMap: `https://yandex.by/maps/?text=${encodeURIComponent(site.address.city + ', ' + site.address.street)}`,
   };
 }

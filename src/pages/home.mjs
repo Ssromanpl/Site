@@ -4,7 +4,7 @@
 import { layout, esc, url, DEMO } from '../lib/layout.mjs';
 import {
   sectionHead, firstVisitSection, serviceCard, masterCard, workItem,
-  reviewCard, ratingBlock, faqBlock, faqSchema, bookingBand,
+  reviewCard, ratingBlock, ratingOn, faqBlock, faqSchema, bookingBand,
 } from '../lib/components.mjs';
 import { icon } from '../lib/icons.mjs';
 import { photo } from '../lib/photo.mjs';
@@ -129,19 +129,28 @@ ${firstVisitSection()}
   </div>
 </section>
 
-<section class="section" id="reviews">
+${
+  reviews.length || ratingOn()
+    ? `<section class="section" id="reviews">
   <div class="wrap">
     ${sectionHead({ kicker: 'Отзывы', title: 'Что говорят клиенты', lead: reviewsIntro.lead })}
     ${ratingBlock()}
-    <div class="grid grid--2 u-mt">
+    ${
+      reviews.length
+        ? `<div class="grid grid--2 u-mt">
       ${reviews.slice(0, 4).map((r) => reviewCard(r, { demo: DEMO })).join('\n      ')}
-    </div>
-    ${DEMO ? `<p class="note">${esc(reviewsIntro.note)}</p>` : ''}
-    <p class="u-mt"><a class="link" href="reviews.html">Все отзывы ${icon('arrow')}</a></p>
+    </div>`
+        : ''
+    }
+    <p class="u-mt"><a class="link" href="reviews.html">Где почитать отзывы ${icon('arrow')}</a></p>
   </div>
-</section>
+</section>`
+    : ''
+}
 
-<section class="section section--ink" id="atmosphere">
+${
+  atmosphere.items.length
+    ? `<section class="section section--ink" id="atmosphere">
   <div class="wrap">
     <div class="split">
       <div>
@@ -170,7 +179,9 @@ ${firstVisitSection()}
       </div>
     </div>
   </div>
-</section>
+</section>`
+    : ''
+}
 
 <section class="section" id="faq">
   <div class="wrap">
@@ -200,14 +211,14 @@ ${firstVisitSection()}
 
 ${bookingBand(0, {
   title: 'Записаться в nail.lounge',
-  text: `Работаем ${site.hoursShort}, в 290 метрах от метро «Площадь Ленина». Администратор подберёт время.`,
+  text: `Работаем ${site.hoursShort}, рядом с метро «Площадь Ленина». Администратор подберёт время.`,
 })}
 `;
 
   return layout({
     title: 'nail.lounge — маникюр, педикюр и брови в центре Минска',
     description:
-      'Студия маникюра, педикюра и бровей в центре Минска, 290 метров от метро «Площадь Ленина». Цены с длительностью, запись к своему мастеру, ежедневно с 09:00 до 21:00.',
+      'Студия маникюра, педикюра и бровей в центре Минска, рядом с метро «Площадь Ленина». Цены с длительностью, запись к своему мастеру, ежедневно с 09:00 до 21:00.',
     path: 'index.html',
     active: '',
     content,
