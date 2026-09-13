@@ -9,7 +9,15 @@ import { loadJson } from './load.mjs';
 
 const data = loadJson('site');
 
-export const site = data.site;
+/**
+ * Адрес сайта можно подменить при сборке: SITE_URL=... node build.mjs
+ * Нужно для показа на чужом домене — например на GitHub Pages, где сайт
+ * лежит в подпапке. Без этого canonical и превью для мессенджеров
+ * указывали бы на домен, которого ещё нет, и картинка в ссылке не грузилась.
+ */
+const origin = (process.env.SITE_URL || data.site.origin).replace(/\/$/, '');
+
+export const site = { ...data.site, origin };
 export const nav = data.nav;
 
 /** Канал записи по id — чтобы ссылки не дублировались по шаблонам. */
