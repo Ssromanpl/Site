@@ -1,113 +1,116 @@
-import { layout, esc } from '../lib/layout.mjs';
+// Страница цен — главная по значимости после первого экрана. Никаких
+// «цена по запросу»: у каждой позиции стоимость и длительность, а рядом
+// объяснение, что входит и что считается отдельно.
+import { layout, esc, crumbsHtml } from '../lib/layout.mjs';
+import { sectionHead, priceCategory, firstVisitSection, bookingBand } from '../lib/components.mjs';
 import { icon } from '../lib/icons.mjs';
 import { site } from '../data/site.mjs';
-import { priceCategories, priceUpdated, priceLabel } from '../data/prices.mjs';
-import { crumbs, priceRows, ctaBand, bookButton } from '../lib/components.mjs';
+import {
+  priceCategories, priceUpdated, priceNote, included, sumParts, extraTitle, extraLead,
+} from '../data/prices.mjs';
+
+/** Микроразметка каталога: поисковики показывают такие цены прямо в выдаче. */
+const catalogSchema = () => ({
+  '@context': 'https://schema.org',
+  '@type': 'OfferCatalog',
+  name: 'Цены на услуги студии nail.lounge',
+  url: `${site.origin}/prices.html`,
+  provider: { '@id': `${site.origin}/#salon` },
+  itemListElement: priceCategories.map((category, i) => ({
+    '@type': 'OfferCatalog',
+    position: i + 1,
+    name: category.title,
+    itemListElement: category.groups
+      .flatMap((g) => g.items)
+      .map((item) => ({
+        '@type': 'Offer',
+        name: item.name,
+        price: String(item.price),
+        priceCurrency: 'BYN',
+        availability: 'https://schema.org/InStock',
+      })),
+  })),
+});
 
 export function pricesPage() {
-  const anchors = priceCategories
-    .map((c) => `<a class="anchors__link" href="#${c.id}">${esc(c.title)}</a>`)
-    .join('');
-
-  const sections = priceCategories
-    .map(
-      (c) => `
-<section class="pricesec" id="${c.id}">
-  <h2 class="pricesec__title">${esc(c.title)}</h2>
-  ${c.lead ? `<p class="pricesec__lead">${esc(c.lead)}</p>` : ''}
-  ${c.groups
-    .map(
-      (g) => `
-  <div class="pricegroup">
-    <h3 class="pricegroup__title">${esc(g.title)}</h3>
-    ${g.note ? `<p class="note note--info">${icon('check')}<span>${esc(g.note)}</span></p>` : ''}
-    <ul class="pricelist">${priceRows(g.items)}</ul>
-  </div>`
-    )
-    .join('')}
-</section>`
-    )
-    .join('');
+  const crumbs = [
+    { name: 'Главная', path: 'index.html' },
+    { name: 'Цены', path: 'prices.html' },
+  ];
 
   const content = `
-${crumbs([{ name: 'Главная', path: 'index.html' }, { name: 'Цены' }], 0)}
+<div class="wrap">${crumbsHtml(crumbs, 0)}</div>
 
-<section class="pagehead">
+<section class="section section--tight">
   <div class="wrap">
-    <h1 class="pagehead__title">Цены</h1>
-    <p class="pagehead__lead">
-      Здесь все цены на наши услуги, обновлены ${esc(priceUpdated)}.
-      Чтобы их увидеть, не нужно оставлять телефон и заполнять форму.
+    <h1>Цены на маникюр, педикюр и брови в Минске</h1>
+    <p class="section__lead">${esc(priceNote)} Итоговую сумму мастер называет до начала работы — не после.</p>
+    <p class="summary-note">
+      <span>${icon('clock')} Цены обновлены: ${esc(priceUpdated)}</span>
+      <span>${icon('wallet')} Оплата наличными и картой в студии</span>
     </p>
-    <div class="pagehead__actions">
-      ${bookButton('Записаться', { cls: 'btn btn--primary' })}
-      <a class="btn btn--ghost" href="${site.phonePrimary.href}" data-goal="phone">${icon('phone')} ${site.phonePrimary.label}</a>
-    </div>
   </div>
 </section>
 
 <div class="wrap">
-  <nav class="anchors" aria-label="Разделы с ценами">${anchors}</nav>
-
-  <div class="prices-notes">
-    <p class="note note--warn">${icon('shield')}<span><strong>Окрашивание, мелирование и колорирование</strong> — цены без учёта стоимости материалов. Расход краски зависит от длины и густоты волос, поэтому сумму мастер называет после осмотра, до начала работы.</span></p>
-    <p class="note note--warn">${icon('shield')}<span><strong>Детский тариф действует до 13 лет.</strong> С 13 лет стрижка считается взрослой. Скажите возраст ребёнка при записи — назовём точную цену сразу, а не на кассе.</span></p>
-  </div>
-
-  <div class="prices">${sections}</div>
-
-  <div class="prices-foot card">
-    <h2>Не нашли свою услугу?</h2>
-    <p>
-      Позвоните — мы делаем и то, чего нет в списке: плетение, дреды, восстановление после неудачного
-      окрашивания, макияж на выпускной. Подскажем, сколько это займёт и во сколько обойдётся.
-    </p>
-    <p class="prices-foot__actions">
-      <a class="btn btn--primary" href="${site.phonePrimary.href}" data-goal="phone">${icon('phone')} ${site.phonePrimary.label}</a>
-      <a class="btn btn--ghost" href="${site.viber}" data-goal="viber">Написать в Viber</a>
-    </p>
-  </div>
+  <nav class="pricenav" aria-label="Разделы цен">
+    ${priceCategories.map((c) => `<a href="#${esc(c.id)}">${esc(c.title)}</a>`).join('\n    ')}
+    <a href="#sum">Из чего складывается сумма</a>
+  </nav>
 </div>
 
-${ctaBand({ depth: 0, title: 'Записаться по этой цене' })}
+<section class="section section--tight">
+  <div class="wrap">
+    <div class="split split--stretch">
+      <div class="card">
+        <h2>${esc(included.title)}</h2>
+        <ul class="checklist u-mt-sm">
+          ${included.items.map((i) => `<li>${icon('check')}<span>${esc(i)}</span></li>`).join('\n          ')}
+        </ul>
+      </div>
+      <div class="card">
+        <h2>${esc(extraTitle)}</h2>
+        <p class="u-mt-sm text-muted">${esc(extraLead)}</p>
+        <p class="u-mt-sm"><a class="link" href="#extra">Смотреть список ${icon('arrow')}</a></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section--tight">
+  <div class="wrap">
+    ${priceCategories.map(priceCategory).join('\n    ')}
+  </div>
+</section>
+
+<section class="section section--soft" id="sum">
+  <div class="wrap">
+    ${sectionHead({ kicker: 'Прозрачно', title: sumParts.title, lead: sumParts.lead })}
+    <div class="parts">
+      ${sumParts.items
+        .map((p) => `<article class="part"><h3>${esc(p.title)}</h3><p>${esc(p.text)}</p></article>`)
+        .join('\n      ')}
+    </div>
+    <p class="summary-note">${icon('chat')} ${esc(sumParts.note)}</p>
+  </div>
+</section>
+
+${firstVisitSection()}
+
+${bookingBand(0, {
+  title: 'Записаться',
+  text: `Назовите услугу — администратор посчитает итог до визита. Работаем ${site.hoursShort}.`,
+})}
 `;
 
-  const offers = priceCategories.flatMap((c) =>
-    c.groups.flatMap((g) =>
-      g.items.map((i) => ({
-        '@type': 'Offer',
-        name: i.name,
-        price: i.price,
-        priceCurrency: 'BYN',
-        description: priceLabel(i),
-        category: c.title,
-        availability: 'https://schema.org/InStock',
-      }))
-    )
-  );
-
   return layout({
-    title: 'Цены на стрижки, окрашивание и маникюр — салон «Пафия», Минск',
+    title: 'Цены на маникюр, педикюр и брови — nail.lounge, Минск',
     description:
-      'Все цены салона на Притыцкого, 73. Женская стрижка от 45 руб., мужская от 40 руб., аппаратный маникюр 30 руб., шугаринг от 10 руб. Без скрытых доплат.',
+      'Полные цены студии nail.lounge в центре Минска: маникюр, педикюр, брови, снятие, дизайн и длина. У каждой услуги стоимость и длительность, без «цены по запросу».',
     path: 'prices.html',
-    depth: 0,
     active: 'prices.html',
-    bodyClass: 'page-prices',
-    crumbs: [
-      { name: 'Главная', path: 'index.html' },
-      { name: 'Цены', path: 'prices.html' },
-    ],
+    crumbs,
     content,
-    jsonLd: [
-      {
-        '@context': 'https://schema.org',
-        '@type': 'OfferCatalog',
-        name: 'Цены салона-парикмахерской «Пафия»',
-        url: `${site.origin}/prices.html`,
-        numberOfItems: offers.length,
-        itemListElement: offers,
-      },
-    ],
+    jsonLd: [catalogSchema()],
   });
 }

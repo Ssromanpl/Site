@@ -1,16 +1,22 @@
-# Публикация черновика сайта на GitHub Pages.
+# Публикация черновика сайта nail.lounge на GitHub Pages.
 #
-# Собирает сайт в режиме DEMO=1: с плашкой «демо-версия» и закрытым от
-# поисковиков robots.txt. Так выложенный на показ макет с придуманными
-# ценами нельзя найти поиском и принять за настоящий сайт салона.
+# Запускается только вручную: Actions → «Публикация черновика nail.lounge»
+# → Run workflow. Автоматического запуска нет намеренно: в репозитории есть
+# вторая ветка со своим проектом и своей публикацией, а адрес GitHub Pages
+# у репозитория один — автозапуск перетирал бы чужой выложенный черновик.
 #
-# Пока публикация не включена в настройках репозитория, этот сценарий
-# ничего не делает — просто завершится с ошибкой на последнем шаге.
-name: Публикация черновика
+# Собирает сайт в режиме DEMO=1: с плашкой «черновик» и закрытым от
+# поисковиков robots.txt, чтобы макет с придуманными ценами нельзя было
+# найти поиском и принять за настоящий сайт студии.
+name: Публикация черновика nail.lounge
 
 on:
+  # В отдельном репозитории сайта публикуем сразу при каждом пуше в main:
+  # там нет соседнего проекта, перетирать нечего.
   push:
-    branches: [claude/pafiya-barbershop-site-2vlg9t]
+    branches: [main]
+  # В общем репозитории запуск только ручной — чтобы не заменить
+  # выложенный черновик соседнего проекта.
   workflow_dispatch:
 
 permissions:
@@ -18,7 +24,6 @@ permissions:
   pages: write
   id-token: write
 
-# Одновременно публикуем только одну версию, лишние прогоны отменяем.
 concurrency:
   group: pages
   cancel-in-progress: true
@@ -34,14 +39,20 @@ jobs:
           node-version: '20'
 
       - name: Собрать сайт в режиме черновика
-        run: DEMO=1 node build.mjs
+        # SITE_URL — адрес, по которому сайт откроется на GitHub Pages.
+        # Без него canonical и превью для мессенджеров ссылались бы
+        # на будущий домен студии, и картинка в ссылке не загружалась бы.
+        run: DEMO=1 SITE_URL="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}" node build.mjs
+
+      - name: Проверить собранное
+        run: node tools/check.mjs
 
       - name: Отобрать только файлы сайта
         run: |
           mkdir -p _site
-          cp -r index.html prices.html masters.html contacts.html booking.html \
-                privacy.html cookies.html 404.html \
-                masters services assets \
+          cp -r index.html manicure.html pedicure.html brows.html prices.html \
+                masters.html works.html reviews.html contacts.html gift.html \
+                404.html masters legal assets \
                 robots.txt sitemap.xml site.webmanifest .nojekyll _site/
 
       - uses: actions/upload-pages-artifact@v3

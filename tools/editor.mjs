@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Редактор сайта «Пафия». Запуск: npm run edit
+ * Редактор сайта nail.lounge. Запуск: npm run edit
  *
  * Поднимает на localhost небольшую админку: правите цены, мастеров, тексты
  * и контакты в формах, нажимаете «Сохранить» — данные пишутся в src/data/*.json,
@@ -21,7 +21,7 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const PORT = Number(process.env.PORT) || 4321;
 
 /** Редактируемые наборы данных. Ничего, кроме них, писать нельзя. */
-const DATASETS = ['site', 'prices', 'masters', 'techniques', 'content'];
+const DATASETS = ['site', 'prices', 'masters', 'services', 'content'];
 
 
 const send = (res, code, body, type = 'application/json; charset=utf-8') => {
@@ -58,17 +58,18 @@ function writeAtomic(file, text) {
 
 function runBuild() {
   const r = spawnSync(process.execPath, ['build.mjs'], { cwd: ROOT, encoding: 'utf8' });
-  let log = `${r.stdout || ''}${r.stderr || ''}`.trim();
+  const log = `${r.stdout || ''}${r.stderr || ''}`.trim();
   if (r.status !== 0) return { ok: false, log };
 
-  // Заодно обновляем версию «одним файлом»: иначе она молча устаревает,
-  // и отправленная кому-то копия расходится с сайтом.
-  const single = spawnSync(process.execPath, ['build-single.mjs'], { cwd: ROOT, encoding: 'utf8' });
-  const singleLog = `${single.stdout || ''}${single.stderr || ''}`.trim();
-  log += singleLog ? `\n${singleLog}` : '';
-  if (single.status !== 0) log += '\nВерсия «одним файлом» не собралась — на сам сайт это не влияет.';
+  // Заодно прогоняем проверку: битую ссылку или пустой заголовок лучше
+  // увидеть сразу в журнале, а не потом на живом сайте.
+  const check = spawnSync(process.execPath, [join('tools', 'check.mjs')], { cwd: ROOT, encoding: 'utf8' });
+  const problems = `${check.stdout || ''}`
+    .split('\n')
+    .filter((line) => line.trim().startsWith('✗'))
+    .join('\n');
 
-  return { ok: true, log };
+  return { ok: true, log: problems ? `${log}\n\nНашлись проблемы:\n${problems}` : log };
 }
 
 
@@ -124,7 +125,7 @@ const server = createServer(async (req, res) => {
 
 /** Сами открываем браузер, чтобы не пришлось копировать адрес руками. */
 function openBrowser(url) {
-  if (process.env.PAFIA_NO_OPEN) return;
+  if (process.env.NL_NO_OPEN) return;
   const cmd = process.platform === 'darwin' ? ['open', [url]]
     : process.platform === 'win32' ? ['cmd', ['/c', 'start', '', url]]
     : ['xdg-open', [url]];
@@ -138,7 +139,7 @@ function openBrowser(url) {
 server.listen(PORT, '127.0.0.1', () => {
   const url = `http://127.0.0.1:${PORT}`;
   console.log('');
-  console.log('  Редактор сайта «Пафия» запущен.');
+  console.log('  Редактор сайта nail.lounge запущен.');
   console.log('');
   console.log(`  Откройте в браузере:  ${url}`);
   console.log('  (обычно он открывается сам через пару секунд)');

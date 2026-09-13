@@ -1,13 +1,17 @@
-// Мастера — главные герои сайта: люди ходят «к Ларисе», а не «в Пафию».
-// Правятся в src/data/masters.json.
+// Мастера студии. Правится в src/data/masters.json.
 //
-// Обратите внимание на падежи: short — в подписях, dative — «записаться к …»,
-// genitive — «работы …». Без них получится «Записаться к Лариса».
-//
-// ⚠️ ДЕМО: стаж, детали работы и портфолио — заглушка. Перед запуском
-// заменить на реальные данные и получить согласие мастеров на публикацию.
+// ⚠️ ЧЕРНОВИК: состав команды собран по упоминаниям в отзывах за 2021–2025
+// годы, тексты «о мастере» написаны нами. Список и биографии нужно
+// подтвердить у владельцев, имя мастера по бровям — узнать.
 import { loadJson } from './load.mjs';
 
-export const masters = loadJson('masters').masters;
+const data = loadJson('masters');
 
-export const masterBySlug = Object.fromEntries(masters.map((m) => [m.slug, m]));
+export const masters = data.masters;
+export const founders = data.founders;
+export const admin = data.admin;
+
+export const masterBySlug = (slug) => masters.find((m) => m.slug === slug) || null;
+
+/** Кто ведёт направление: маникюр, педикюр или брови. */
+export const mastersFor = (direction) => masters.filter((m) => m.directions.includes(direction));
